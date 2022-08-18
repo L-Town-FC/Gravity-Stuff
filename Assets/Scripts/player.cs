@@ -5,26 +5,32 @@ using UnityEngine.InputSystem;
 
 public class player : MonoBehaviour
 {
+    //outside components and transforms
     CharacterController charController;
     CapsuleCollider capsuleCollider;
     Transform playerCam;
 
+    //movement parameters
+    [SerializeField]
+    float moveSpeed = 7f;
     Vector3 moveDir = Vector2.zero;
+
+    //camera movement parameters
     Vector2 cameraMovement = Vector2.zero;
     Vector2 minAndMaxCameraAngle = new Vector2(-60f, 60f);
     Vector2 cameraMoveSpeed = new Vector2(250f, 220f);
-    [SerializeField]
-    float moveSpeed = 7f;
-    Vector3 localDown;
+
+    //gravity and jumping parameteres
     float verticalVelocity;
     bool isGrounded;
     [SerializeField]
-    float acceleration = 1f;
+    float acceleration = -1f; //acceleration due to gravity
+    float jumpForce = 20f;
 
     [SerializeField]
     Vector3[] localLowerBounds;
 
-    //negative is up because of how localdown is always positive
+    //negative is up because of how -transform.up is always positive
 
     // Start is called before the first frame update
     void Start()
@@ -33,7 +39,6 @@ public class player : MonoBehaviour
         capsuleCollider = GetComponent<CapsuleCollider>();
         playerCam = transform.GetChild(0);
         Cursor.lockState = CursorLockMode.Locked;
-        localDown = -transform.up;
         localLowerBounds = GetLowerBounds(capsuleCollider.center, capsuleCollider.radius);
     }
 
@@ -42,13 +47,14 @@ public class player : MonoBehaviour
     {
         foreach(Vector3 bound in localLowerBounds) //draws rays from 5 points on players body straight down for visualization purposes
         {
-            Debug.DrawRay(transform.TransformPoint(bound), localDown * 3f, Color.red);
+            Debug.DrawRay(transform.TransformPoint(bound), -transform.up * 3f, Color.red);
         }
 
-        isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, charController.skinWidth, localDown, transform);
+        isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, charController.skinWidth, -transform.up, transform);
 
-        transform.eulerAngles += Vector3.up * cameraMovement.x * cameraMoveSpeed.x * Time.deltaTime;
+        transform.eulerAngles += Vector3.up * cameraMovement.x * cameraMoveSpeed.x * Time.deltaTime; //lets the player turn left and right
 
+        //takes the current up/down camera angle and adds however much the mouse moves up and down multiplied by a set move speed
         float camAngle = playerCam.eulerAngles.x;
         if(camAngle > 180f) //arbitrary number above max camera angle
         {
@@ -69,11 +75,11 @@ public class player : MonoBehaviour
         }
         else
         {
-            verticalVelocity = Mathf.Clamp(verticalVelocity, Mathf.NegativeInfinity, 0.1f); //need to make min negative infinity or else whenever a jump velocity was applied it would be instanlty canceled
+            verticalVelocity = Mathf.Clamp(verticalVelocity, -0.1f, Mathf.Infinity); //lowerlimit is -0.1f to make sure it always reached ground and doesnt hover slightly above the ground, positive infinity is so a jump force can be added
             
         }
 
-        charController.Move(localDown * verticalVelocity * Time.fixedDeltaTime);
+        charController.Move(transform.up * verticalVelocity * Time.fixedDeltaTime); //this is where gravity and jump velocity is applied to the body
         charController.Move(transform.TransformDirection(moveDir) * moveSpeed * Time.fixedDeltaTime);
     }
 
@@ -86,9 +92,10 @@ public class player : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && GroundCheck(localLowerBounds, capsuleCollider.radius, charController.skinWidth, localDown, transform))
+        //lets the player jump by setting the players upward velocity if they are currently grounded. this ground check is a security blanket in case the one in update misses do to frame differences
+        if (context.performed && GroundCheck(localLowerBounds, capsuleCollider.radius, charController.skinWidth, -transform.up, transform))
         {
-            verticalVelocity = -20f;
+            verticalVelocity = jumpForce;
         }
     }
 
@@ -104,6 +111,8 @@ public class player : MonoBehaviour
 
     static bool GroundCheck(Vector3[] lowerBounds, float radius, float skinWidth, Vector3 down, Transform transform)
     {
+        //go through array of bounds and cast down slightly more than distance from the point to the ground when perfectly grounded. if any of the raycasts hit, then we now that we are grounded
+        //radius is radius of the lower sphere that makes up the capsule, skinWidth is a buffer that is set by the characterController to make sure the player doesnt clip into other objects
         foreach(Vector3 bound in lowerBounds)
         {
             if(Physics.Raycast(transform.TransformPoint(bound), down, radius + skinWidth))
@@ -116,6 +125,7 @@ public class player : MonoBehaviour
 
     static Vector3[] GetLowerBounds(Vector3 center, float radius)
     {
+        //go through points on lower sphere of capsule (front, back, left, right and center) and write them to array for later ground detection
         Vector3 newCenter = new Vector3(center.x, center.y - radius, center.z);
         Vector3 frontBound = new Vector3(newCenter.x, newCenter.y, newCenter.z + radius);
         Vector3 rearBound = new Vector3(newCenter.x, newCenter.y, newCenter.z - radius);
