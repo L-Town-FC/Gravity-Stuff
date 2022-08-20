@@ -5,6 +5,12 @@ using UnityEngine.InputSystem;
 
 public class player : MonoBehaviour
 {
+    //cam doesnt like gravity flipping. figure out why
+    //maybe put an empty gameobject between player and camera heirarchy?
+    //replace character controller with rigidbody because of character controller cant rotate properly
+    public enum gravityDirection { up, down, left, right};
+    public gravityDirection gravDirection = gravityDirection.up;
+
     //outside components and transforms
     CharacterController charController;
     CapsuleCollider capsuleCollider;
@@ -30,7 +36,7 @@ public class player : MonoBehaviour
     [SerializeField]
     Vector3[] localLowerBounds;
 
-    //negative is up because of how -transform.up is always positive
+    public Vector3 up;
 
     // Start is called before the first frame update
     void Start()
@@ -40,11 +46,14 @@ public class player : MonoBehaviour
         playerCam = transform.GetChild(0);
         Cursor.lockState = CursorLockMode.Locked;
         localLowerBounds = GetLowerBounds(capsuleCollider.center, capsuleCollider.radius);
+        up = transform.up;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Test();
+
         foreach(Vector3 bound in localLowerBounds) //draws rays from 5 points on players body straight down for visualization purposes
         {
             Debug.DrawRay(transform.TransformPoint(bound), -transform.up * 3f, Color.red);
@@ -52,18 +61,8 @@ public class player : MonoBehaviour
 
         isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, charController.skinWidth, -transform.up, transform);
 
-        transform.eulerAngles += Vector3.up * cameraMovement.x * cameraMoveSpeed.x * Time.deltaTime; //lets the player turn left and right
 
-        //takes the current up/down camera angle and adds however much the mouse moves up and down multiplied by a set move speed
-        float camAngle = playerCam.eulerAngles.x;
-        if(camAngle > 180f) //arbitrary number above max camera angle
-        {
-            camAngle -= 360f;
-        }
-        camAngle += -cameraMovement.y * cameraMoveSpeed.y * Time.deltaTime;
-        camAngle = Mathf.Clamp(camAngle, minAndMaxCameraAngle.x, minAndMaxCameraAngle.y);
-        playerCam.localEulerAngles = new Vector3(camAngle, 0f, playerCam.eulerAngles.z);
-        
+        CameraMovement();
 
     }
 
@@ -81,6 +80,22 @@ public class player : MonoBehaviour
 
         charController.Move(transform.up * verticalVelocity * Time.fixedDeltaTime); //this is where gravity and jump velocity is applied to the body
         charController.Move(transform.TransformDirection(moveDir) * moveSpeed * Time.fixedDeltaTime);
+    }
+
+    void CameraMovement()
+    {
+        //takes the current up/down camera angle and adds however much the mouse moves up and down multiplied by a set move speed
+        //need to set camera angles relative to transform.up
+        float camAngle = playerCam.localEulerAngles.x;
+        if (camAngle > 180f) //arbitrary number above max camera angle
+        {
+            camAngle -= 360f;
+        }
+        camAngle += -cameraMovement.y * cameraMoveSpeed.y * Time.deltaTime;
+        camAngle = Mathf.Clamp(camAngle, minAndMaxCameraAngle.x, minAndMaxCameraAngle.y);
+        playerCam.localEulerAngles = new Vector3(camAngle, 0f, 0);
+
+        transform.Rotate(Vector3.up * cameraMovement.x * cameraMoveSpeed.x * Time.deltaTime);
     }
 
     public void PlayerMovement(InputAction.CallbackContext context)
@@ -141,5 +156,32 @@ public class player : MonoBehaviour
         lowerBounds[4] = bottom;
 
         return lowerBounds;
+    }
+
+    void Test()
+    {
+        //Vector3 newDirection;
+        //switch (gravDirection)
+        //{
+        //    case gravityDirection.up:
+        //        newDirection = Vector3.up;
+        //    break;
+        //    case gravityDirection.down:
+        //        newDirection = Vector3.down;
+        //    break;
+        //    case gravityDirection.left:
+        //        newDirection = Vector3.left;
+        //    break;
+        //    case gravityDirection.right:
+        //        newDirection = Vector3.right;
+        //    break;
+        //    default: 
+        //        newDirection = Vector3.up;
+        //        break;
+        //}
+
+        Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, up);
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, slopeRotation * transform.rotation, 10f * Time.deltaTime);
     }
 }
