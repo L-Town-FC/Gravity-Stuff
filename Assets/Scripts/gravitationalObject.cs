@@ -32,7 +32,7 @@ public class gravitationalObject : MonoBehaviour
         {
             if(_transform.gameObject.TryGetComponent(out player _player))
             {
-                _player.up = _transform.position - center;
+
             }
         }
     }
