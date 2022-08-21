@@ -9,6 +9,7 @@ public class learningEvents : MonoBehaviour
     //need to add collision detection
     private PlayerControls playerControls;
     private InputAction movement;
+    private InputAction cameraMovement;
 
     CapsuleCollider capsuleCollider;
     Rigidbody rb;
@@ -18,6 +19,10 @@ public class learningEvents : MonoBehaviour
     float acceleration = -1f; //acceleration due to gravity
     float jumpForce = 20f;
     float moveSpeed = 7f;
+    Vector3 movementInput = Vector3.zero;
+    Vector2 cameraInput = Vector2.zero;
+    [SerializeField]
+    Vector2 cameraSensitivity = new Vector2(0.5f, 100f);
 
     private void Awake()
     {
@@ -25,6 +30,7 @@ public class learningEvents : MonoBehaviour
 
         capsuleCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
+        Cursor.lockState = CursorLockMode.Locked;
         localLowerBounds = GetLowerBounds(capsuleCollider.center, capsuleCollider.radius);
     }
 
@@ -32,20 +38,25 @@ public class learningEvents : MonoBehaviour
     {
         movement = playerControls.PlayerMovement.Walking;
         movement.Enable();
+        cameraMovement = playerControls.PlayerMovement.Camera;
+        cameraMovement.Enable();
 
         playerControls.PlayerMovement.Jump.performed += DoJump;
         playerControls.PlayerMovement.Jump.Enable();
     }
-
+    //grab inputs in update
     private void Update()
     {
+        movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
+        cameraInput = new Vector2(cameraMovement.ReadValue<Vector2>().x, cameraMovement.ReadValue<Vector2>().y);
         isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
+
+        
     }
 
+    //apply updates in fixed update
     private void FixedUpdate()
     {
-        isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
-
         if (!isGrounded) //if the player is grounded reset their downward motion so it doesnt constantly build up. if they are not grounded, begin applying gravity
         {
             verticalVelocity = Gravity(verticalVelocity, acceleration);
@@ -53,10 +64,10 @@ public class learningEvents : MonoBehaviour
         else
         {
             verticalVelocity = Mathf.Clamp(verticalVelocity, 0f, Mathf.Infinity); //lowerlimit is -0.1f to make sure it always reached ground and doesnt hover slightly above the ground, positive infinity is so a jump force can be added
-
         }
 
-        rb.MovePosition(rb.position + transform.TransformDirection(transform.up * verticalVelocity * Time.fixedDeltaTime + new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y) * moveSpeed * Time.fixedDeltaTime));
+        rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(movementInput * moveSpeed * Time.fixedDeltaTime));
+        CamMove();
     }
 
     private void DoJump(InputAction.CallbackContext obj)
@@ -69,13 +80,24 @@ public class learningEvents : MonoBehaviour
 
     private void OnDisable()
     {
+        //need to disable incase object is destroyed and game tries to call them after
         movement.Disable();
+        cameraMovement.Disable();
         playerControls.PlayerMovement.Jump.Disable();
+    }
+
+    void CamMove()
+    {
+        rb.MoveRotation(Quaternion.Slerp(rb.rotation, rb.rotation * Quaternion.Euler(new Vector3(0f, cameraInput.x, 0f) * cameraSensitivity.x * Time.fixedDeltaTime), 0.5f));
     }
 
     static float Gravity(float verticalVelocity, float acceleration) //simple way to add gravity to player calculations
     {
         verticalVelocity += acceleration;
+        if(verticalVelocity <= -30f)
+        {
+            verticalVelocity = -30f;
+        }
         return verticalVelocity;
     }
 

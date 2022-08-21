@@ -57,7 +57,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
             ],
             ""bindings"": [
                 {
-                    ""name"": ""Direction"",
+                    ""name"": ""Keyboard"",
                     ""id"": ""a0539b46-4037-4f55-81ae-669facd91a64"",
                     ""path"": ""2DVector"",
                     ""interactions"": """",
@@ -113,6 +113,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""1a56bc47-b861-4819-afeb-4061eb775eab"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Walking"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""2f7b7048-71ae-4583-814e-c57776b4ed0e"",
                     ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
@@ -128,6 +139,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""path"": ""<Mouse>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Camera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1e9d1502-bbe0-4e20-8b6c-0ee1a6dd0c6d"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": ""ScaleVector2(x=20,y=20)"",
                     ""groups"": """",
                     ""action"": ""Camera"",
                     ""isComposite"": false,
