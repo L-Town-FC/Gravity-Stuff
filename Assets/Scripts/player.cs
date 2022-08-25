@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 
 public class player : MonoBehaviour
 {
-    //TODO: Fix bug with change gravity where player cant turn sometimes
-    //TODO: Fix bug where you cant use up/down on d-pad to change gravity (may have to do with how input is handled)
+    //TODO: Play with accleration rate to make it seem less jarring when you switch gravity
+    //TODO: Implement cooldown for gravity changing
 
     private PlayerControls playerControls;
     private InputAction movement;
