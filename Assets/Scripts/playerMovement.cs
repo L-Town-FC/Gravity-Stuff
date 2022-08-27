@@ -7,6 +7,9 @@ using UnityEngine.InputSystem;
 public class playerMovement : MonoBehaviour
 {
     //TODO: make it so player is looking at same spot after gravity change is finished
+    //This should be done in the change gravity IEnumerator
+    //Need to apply a rotation to the rigid body and camera to align every time the transform's up is updated
+    //may need to disable playerCamera script when this is happening
 
     //Action maps and inputs
     private PlayerControls playerControls;
@@ -16,6 +19,7 @@ public class playerMovement : MonoBehaviour
     //player components
     CapsuleCollider capsuleCollider;
     Rigidbody rb;
+    Transform playerCam;
 
     //gravity variables
     public static Vector3 up;
@@ -50,9 +54,11 @@ public class playerMovement : MonoBehaviour
         Debug.DrawRay(transform.position, transform.forward * 10f, Color.red);
     }
 
-    //apply updates in fixed update
+    //apply inputs to components in fixed update
     private void FixedUpdate()
     {
+        rb.velocity = Vector3.zero; //fixes bug where if you moved into a wall for long enough your velocity would be stuck at a value other than zero
+
         if (!isGrounded) //if the player is grounded reset their downward motion so it doesnt constantly build up. if they are not grounded, begin applying gravity
         {
             verticalVelocity = Gravity(verticalVelocity, acceleration);
@@ -61,7 +67,10 @@ public class playerMovement : MonoBehaviour
         {
             verticalVelocity = Mathf.Clamp(verticalVelocity, 0f, Mathf.Infinity); //lowerlimit is -0.1f to make sure it always reached ground and doesnt hover slightly above the ground, positive infinity is so a jump force can be added
         }
-        
+
+        //temp getting rid of gravity for testing
+        //verticalVelocity = 0f;
+
         rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(movementInput * moveSpeed * Time.fixedDeltaTime));
     }
 
@@ -177,6 +186,7 @@ public class playerMovement : MonoBehaviour
         playerControls = new PlayerControls();
 
         capsuleCollider = GetComponent<CapsuleCollider>();
+        playerCam = transform.GetChild(0);
         rb = GetComponent<Rigidbody>();
         localLowerBounds = GetLowerBounds(capsuleCollider.center, capsuleCollider.radius);
         up = transform.up;
@@ -212,6 +222,22 @@ public class playerMovement : MonoBehaviour
         //changes the players up direction to its newly set one
         bool isFinished = false;
         Vector3 finalDirection = transform.position + transform.TransformDirection(Vector3.forward);
+
+        //trying to make it so player is looking at same spot after rotation as before
+        {
+            Vector3 playerLookPoint;
+            RaycastHit hit;
+            if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 60f))
+            {
+                playerLookPoint = hit.point;
+            }
+            else
+            {
+                playerLookPoint = playerCam.position + playerCam.forward * 60f;
+            }
+            Debug.DrawLine(playerCam.position, playerLookPoint, Color.green, 2f);
+        }
+
         while (!isFinished)
         {
             if(Vector3.Dot(transform.up, up) >= 0.99999f) //checks if the players current up is close to its target up
@@ -231,6 +257,8 @@ public class playerMovement : MonoBehaviour
             Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, up);
 
             transform.rotation = Quaternion.Lerp(transform.rotation, slopeRotation * transform.rotation, 15f * Time.deltaTime);
+
+            //extra rotation to align camera with look point
 
             yield return null;
         }
