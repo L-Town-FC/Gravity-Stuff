@@ -16,17 +16,17 @@ public class playerUI : MonoBehaviour
 
     private void OnEnable()
     {
-        player.gravityChanged += UpdateGravityChangeTime;
+        playerMovement.gravityChanged += UpdateGravityChangeTime;
     }
 
     private void OnDisable()
     {
-        player.gravityChanged -= UpdateGravityChangeTime;
+        playerMovement.gravityChanged -= UpdateGravityChangeTime;
     }
 
     private void Awake()
     {
-        gravityChangeCooldownTime = player.gravityChangeCooldownTime;
+        gravityChangeCooldownTime = playerMovement.gravityChangeCooldownTime;
         gravityCooldownRect = gravityCooldown.rect;
         barMaxWidth = gravityCooldownRect.width;
     }

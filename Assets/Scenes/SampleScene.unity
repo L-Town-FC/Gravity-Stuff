@@ -1517,6 +1517,7 @@ GameObject:
   - component: {fileID: 2084556577}
   - component: {fileID: 2084556576}
   - component: {fileID: 2084556581}
+  - component: {fileID: 2084556582}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1630,6 +1631,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c31dfbf42ca337d48921d1344ca9edd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2084556582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2084556575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6558489e502ff4280a675342178da1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cameraSensitivity: {x: 15, y: 12}

@@ -4,28 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class player : MonoBehaviour
+public class playerMovement : MonoBehaviour
 {
-    //look into separating actions/camera stuff into separate scripts
+    //look into separating actions into separate scripts
     //TODO: fix stutter when moving into things
     //TODO: make it so player is looking at same spot after gravity change is finished
 
     //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
-    private InputAction cameraMovement;
     Vector3 movementInput = Vector3.zero; //holds players inputs
-    Vector2 cameraInput = Vector2.zero; //holds players inputs
 
     //player components
-    Transform playerCam;
     CapsuleCollider capsuleCollider;
     Rigidbody rb;
-
-    //camera variables
-    [SerializeField]
-    Vector2 cameraSensitivity = new Vector2(0.5f, 0.3f);
-    Vector2 minAndMaxCameraAngle = new Vector2(-75f, 75f);
 
     //gravity variables
     Vector3 up;
@@ -73,7 +65,7 @@ public class player : MonoBehaviour
         }
 
         rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(movementInput * moveSpeed * Time.fixedDeltaTime));
-        CamMove();
+        //CamMove();
     }
     private void OnDisable()
     {
@@ -134,24 +126,6 @@ public class player : MonoBehaviour
         
     }
 
-
-    void CamMove()
-    {
-        //used to turn player. player is turned instead of camera so player and camera dont go out of synce
-        rb.MoveRotation(Quaternion.Slerp(rb.rotation, rb.rotation * Quaternion.Euler(new Vector3(0f, cameraInput.x, 0f) * cameraSensitivity.x * Time.fixedDeltaTime), 0.5f));
-
-        //used to max pan camera up and down. this is camera specific as rotating the players whole body would cause problems
-        float currentAngle = playerCam.localEulerAngles.x;
-
-        if (currentAngle > 180f)
-        {
-            currentAngle -= 360f;
-        }
-        currentAngle -= cameraInput.y * cameraSensitivity.y * Time.fixedDeltaTime;
-        currentAngle = Mathf.Clamp(currentAngle, minAndMaxCameraAngle.x, minAndMaxCameraAngle.y);
-        playerCam.localEulerAngles = new Vector3(currentAngle, 0f, 0f);
-    }
-
     static float Gravity(float verticalVelocity, float acceleration) //simple way to add gravity to player calculations
     {
         verticalVelocity += acceleration;
@@ -204,10 +178,8 @@ public class player : MonoBehaviour
     {
         playerControls = new PlayerControls();
 
-        playerCam = transform.GetChild(0);
         capsuleCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
-        Cursor.lockState = CursorLockMode.Locked;
         localLowerBounds = GetLowerBounds(capsuleCollider.center, capsuleCollider.radius);
         up = transform.up;
     }
@@ -216,9 +188,6 @@ public class player : MonoBehaviour
     {
         movement = playerControls.PlayerMovement.Walking;
         movement.Enable();
-        cameraMovement = playerControls.PlayerMovement.Camera;
-        cameraMovement.Enable();
-
 
         playerControls.PlayerMovement.GravityChange.performed += ChangeGravity;
         playerControls.PlayerMovement.GravityChange.Enable();
@@ -230,13 +199,11 @@ public class player : MonoBehaviour
     void GettingPlayerInputs()
     {
         movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
-        cameraInput = new Vector2(cameraMovement.ReadValue<Vector2>().x, cameraMovement.ReadValue<Vector2>().y);
         isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
     }
     void DisablingPlayerControls()
     {
         movement.Disable();
-        cameraMovement.Disable();
         playerControls.PlayerMovement.Jump.Disable();
         playerControls.PlayerMovement.GravityChange.Disable();
     }
