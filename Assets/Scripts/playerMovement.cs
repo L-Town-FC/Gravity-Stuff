@@ -6,8 +6,6 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //look into separating actions into separate scripts
-    //TODO: fix stutter when moving into things
     //TODO: make it so player is looking at same spot after gravity change is finished
 
     //Action maps and inputs
@@ -20,14 +18,14 @@ public class playerMovement : MonoBehaviour
     Rigidbody rb;
 
     //gravity variables
-    Vector3 up;
+    public static Vector3 up;
     public static float gravityChangeCooldownTime = 2f;
     float lastGravityChangeTime = 0f;
     float acceleration = -0.75f; //acceleration due to gravity
 
     Vector3[] localLowerBounds; //holds points on player that are raycast from to check if grounded
     bool isGrounded = false;
-    float verticalVelocity; //stores the players vertical velocity due to jumping/gravity
+    float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     float jumpForce = 20f; //velocity magnitude that is set when player jumps
     float moveSpeed = 7f; //speed at which players moves
 
@@ -63,10 +61,10 @@ public class playerMovement : MonoBehaviour
         {
             verticalVelocity = Mathf.Clamp(verticalVelocity, 0f, Mathf.Infinity); //lowerlimit is -0.1f to make sure it always reached ground and doesnt hover slightly above the ground, positive infinity is so a jump force can be added
         }
-
+        
         rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(movementInput * moveSpeed * Time.fixedDeltaTime));
-        //CamMove();
     }
+
     private void OnDisable()
     {
         //need to disable incase object is destroyed and game tries to call them after
@@ -201,6 +199,7 @@ public class playerMovement : MonoBehaviour
         movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
         isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
     }
+
     void DisablingPlayerControls()
     {
         movement.Disable();
