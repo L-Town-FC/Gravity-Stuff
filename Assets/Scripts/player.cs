@@ -6,6 +6,10 @@ using UnityEngine.InputSystem;
 
 public class player : MonoBehaviour
 {
+    //look into separating actions/camera stuff into separate scripts
+    //TODO: fix stutter when moving into things
+    //TODO: make it so player is looking at same spot after gravity change is finished
+
     //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
@@ -25,7 +29,7 @@ public class player : MonoBehaviour
 
     //gravity variables
     Vector3 up;
-    float gravityChangeCooldownTime = 2f;
+    public static float gravityChangeCooldownTime = 2f;
     float lastGravityChangeTime = 0f;
     float acceleration = -0.75f; //acceleration due to gravity
 
@@ -34,6 +38,9 @@ public class player : MonoBehaviour
     float verticalVelocity; //stores the players vertical velocity due to jumping/gravity
     float jumpForce = 20f; //velocity magnitude that is set when player jumps
     float moveSpeed = 7f; //speed at which players moves
+
+    public delegate void GravityChange(float currentTime);
+    public static event GravityChange gravityChanged;
 
     private void Awake()
     {
@@ -112,8 +119,16 @@ public class player : MonoBehaviour
             {
                 newUp = new Vector3(0f, 0f, Mathf.RoundToInt(newGravity.z));
             }
+
             up = -newUp;
+
             lastGravityChangeTime = Time.time;
+
+            if(gravityChanged != null) //calling event to alert other scripts that the gravity has successfully changed
+            {
+                gravityChanged(lastGravityChangeTime);
+            }
+
             StartCoroutine("SettingGravity");
         }
         
