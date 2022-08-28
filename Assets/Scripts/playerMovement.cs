@@ -6,11 +6,6 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //TODO: make it so player is looking at same spot after gravity change is finished
-    //This should be done in the change gravity IEnumerator
-    //Need to apply a rotation to the rigid body and camera to align every time the transform's up is updated
-    //may need to disable playerCamera script when this is happening
-
     //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
