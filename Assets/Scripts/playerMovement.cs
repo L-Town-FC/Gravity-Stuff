@@ -68,9 +68,6 @@ public class playerMovement : MonoBehaviour
             verticalVelocity = Mathf.Clamp(verticalVelocity, 0f, Mathf.Infinity); //lowerlimit is -0.1f to make sure it always reached ground and doesnt hover slightly above the ground, positive infinity is so a jump force can be added
         }
 
-        //temp getting rid of gravity for testing
-        //verticalVelocity = 0f;
-
         rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(movementInput * moveSpeed * Time.fixedDeltaTime));
     }
 
@@ -217,48 +214,56 @@ public class playerMovement : MonoBehaviour
         playerControls.PlayerMovement.GravityChange.Disable();
     }
 
-    IEnumerator SettingGravity()
+    IEnumerator SettingGravity() //may need to disable players camera inputs during this
     {
         //changes the players up direction to its newly set one
         bool isFinished = false;
         Vector3 finalDirection = transform.position + transform.TransformDirection(Vector3.forward);
 
         //trying to make it so player is looking at same spot after rotation as before
+        //grabs the location of the point that the player is looking at. if the point is significantly far away, a point a set distance away is used instead
+        Vector3 playerLookPoint;
+        RaycastHit hit;
+        if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 60f))
         {
-            Vector3 playerLookPoint;
-            RaycastHit hit;
-            if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 60f))
-            {
-                playerLookPoint = hit.point;
-            }
-            else
-            {
-                playerLookPoint = playerCam.position + playerCam.forward * 60f;
-            }
-            Debug.DrawLine(playerCam.position, playerLookPoint, Color.green, 2f);
+            playerLookPoint = hit.point;
         }
+        else
+        {
+            playerLookPoint = playerCam.position + playerCam.forward * 60f;
+        }        
 
         while (!isFinished)
         {
-            if(Vector3.Dot(transform.up, up) >= 0.99999f) //checks if the players current up is close to its target up
+            float dot = Vector3.Dot(transform.up, up);
+
+            if (dot >= 0.99995f) //checks if the players current up is close to its target up
             {
                 //whens its close it just manually sets it to be exact
                 transform.rotation.SetLookRotation(finalDirection, up);
 
                 //rounds the players euler angles to intergers. without this the player may be tilted by a few degrees which would be jarring/look bad
                 Vector3 fineAdjustment = transform.localEulerAngles;
-                float x = Mathf.RoundToInt(fineAdjustment.x);
-                float y = Mathf.RoundToInt(fineAdjustment.y);
-                float z = Mathf.RoundToInt(fineAdjustment.z);
+
+                //lets nearest interger be 2 away instead of 1. player was occasionally getting stuck at 89 or 269 degrees because of the lack of precision of dot product
+                float x = Mathf.RoundToInt(fineAdjustment.x / 2f) * 2f;
+                float y = Mathf.RoundToInt(fineAdjustment.y / 2f) * 2f;
+                float z = Mathf.RoundToInt(fineAdjustment.z / 2f) * 2f;
+
                 transform.localEulerAngles = new Vector3(x, y, z);
                 isFinished = true;
             }
             //generates new rotation for player towards their new up
+            if(dot <= 0.93f)
+            {
+                //setting the max allowed dot product higher would increase precision but it would also cause the camera to jitter and occasionally be stuck in this loop as it tries to reconcile these rotations with the below rotation
+                transform.LookAt(playerLookPoint, transform.up); //rotates the players body so it is approximately looking at what it was looking at before (only horizontal)
+                playerCam.transform.LookAt(playerLookPoint, transform.up); //rotates the players body so it is approximately looking at what it was looking at before (only vertical)
+            }
+
             Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, up);
 
             transform.rotation = Quaternion.Lerp(transform.rotation, slopeRotation * transform.rotation, 15f * Time.deltaTime);
-
-            //extra rotation to align camera with look point
 
             yield return null;
         }
