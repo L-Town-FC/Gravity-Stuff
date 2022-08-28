@@ -231,39 +231,44 @@ public class playerMovement : MonoBehaviour
         else
         {
             playerLookPoint = playerCam.position + playerCam.forward * 60f;
-        }        
+        }
+
+        int counter = 0; //counter is work around so player doesnt get stuck trying to go between rotating the player towards the new gravity direction and rotating the player to keep them aligned with what they were looking at
 
         while (!isFinished)
         {
             float dot = Vector3.Dot(transform.up, up);
 
+            //generates new rotation for player towards their new up
+            if(dot <= 0.93f && counter < 40)
+            {
+                //setting the max allowed dot product higher would increase precision but it would also cause the camera to jitter and occasionally be stuck in this loop as it tries to reconcile these rotations with the below rotation
+                transform.LookAt(playerLookPoint, transform.up); //rotates the players body so it is approximately looking at what it was looking at before (only horizontal)
+                playerCam.transform.LookAt(playerLookPoint, transform.up); //rotates the players body so it is approximately looking at what it was looking at before (only vertical)
+                counter++;
+            }
+
+            Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, up);
+
+            transform.rotation = Quaternion.Lerp(transform.rotation, slopeRotation * transform.rotation, 15f * Time.deltaTime);
+
             if (dot >= 0.99995f) //checks if the players current up is close to its target up
             {
+
                 //whens its close it just manually sets it to be exact
                 transform.rotation.SetLookRotation(finalDirection, up);
 
                 //rounds the players euler angles to intergers. without this the player may be tilted by a few degrees which would be jarring/look bad
                 Vector3 fineAdjustment = transform.localEulerAngles;
 
-                //lets nearest interger be 2 away instead of 1. player was occasionally getting stuck at 89 or 269 degrees because of the lack of precision of dot product
-                float x = Mathf.RoundToInt(fineAdjustment.x / 2f) * 2f;
-                float y = Mathf.RoundToInt(fineAdjustment.y / 2f) * 2f;
-                float z = Mathf.RoundToInt(fineAdjustment.z / 2f) * 2f;
+                //lets nearest interger be 5 away instead of 1. player was occasionally getting stuck anywhere between desired angle (90,180,270,360) +/- 5 degrees because of the lack of precision of dot product
+                float x = Mathf.RoundToInt(fineAdjustment.x / 5f) * 5f;
+                float y = Mathf.RoundToInt(fineAdjustment.y / 5f) * 5f;
+                float z = Mathf.RoundToInt(fineAdjustment.z / 5f) * 5f;
 
                 transform.localEulerAngles = new Vector3(x, y, z);
                 isFinished = true;
             }
-            //generates new rotation for player towards their new up
-            if(dot <= 0.93f)
-            {
-                //setting the max allowed dot product higher would increase precision but it would also cause the camera to jitter and occasionally be stuck in this loop as it tries to reconcile these rotations with the below rotation
-                transform.LookAt(playerLookPoint, transform.up); //rotates the players body so it is approximately looking at what it was looking at before (only horizontal)
-                playerCam.transform.LookAt(playerLookPoint, transform.up); //rotates the players body so it is approximately looking at what it was looking at before (only vertical)
-            }
-
-            Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, up);
-
-            transform.rotation = Quaternion.Lerp(transform.rotation, slopeRotation * transform.rotation, 15f * Time.deltaTime);
 
             yield return null;
         }
