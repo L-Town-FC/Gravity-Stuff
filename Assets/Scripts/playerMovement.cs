@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
+    //TODO: Adjust values for Setting Gravity to make it smoother
+
     //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
@@ -242,14 +244,15 @@ public class playerMovement : MonoBehaviour
 
         //projects the vector from what the player is looking at onto new up facing plane so the players body can be rotated towards it during gravity change
         //this ensures that the player is facing the same direction before and after the change in gravity
-        Vector3 projectedBodyLook = Vector3.ProjectOnPlane((playerLookPoint - playerCam.transform.position).normalized, up); 
+        Vector3 projectedBodyLook = Vector3.ProjectOnPlane((playerLookPoint - playerCam.position).normalized, up);
 
+        int counter = 0;
         while (!isFinished)
         {
+            counter++;
             float dot = Vector3.Dot(transform.up, up);
-            float camDot = Vector3.Dot(playerCam.forward, (playerLookPoint - playerCam.transform.position).normalized);
+            float camDot = Vector3.Dot(playerCam.forward, (playerLookPoint - playerCam.position).normalized);
 
-            print(camDot);
             Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, up);
 
             transform.rotation = Quaternion.Lerp(transform.rotation, slopeRotation * transform.rotation, 7f * Time.deltaTime);
@@ -259,12 +262,19 @@ public class playerMovement : MonoBehaviour
                 float bodyToLookPointAngle = Vector3.SignedAngle(transform.forward, projectedBodyLook, up); //rotates the body towards the point it was looking at slowly during its flip
                 if(Mathf.Abs(bodyToLookPointAngle) > 1f)
                 {
-                    transform.Rotate(transform.InverseTransformVector(up), Mathf.Sign(bodyToLookPointAngle) * 0.5f);
+                    transform.Rotate(transform.InverseTransformVector(up), Mathf.Sign(bodyToLookPointAngle) * 0.8f);
                 }
             }
 
+            if(camDot <= 0.995f)
+            {
+                float angleBetween = Vector3.Angle(transform.up, playerCam.forward) - Vector3.Angle(transform.up, playerLookPoint - playerCam.position);
+                playerCam.localEulerAngles += new Vector3(-Mathf.Sign(angleBetween) * 0.25f, 0f, 0f);
+                print(angleBetween);
+            }
 
-            if (dot >= 0.99995f) //checks if the players current up is close to its target up
+
+            if (dot >= 0.99999f) //checks if the players current up is close to its target up
             {
                 float angleSensitivity = 3f;
                 //whens its close it just manually sets it to be exact
@@ -280,8 +290,6 @@ public class playerMovement : MonoBehaviour
 
 
                 transform.localEulerAngles = new Vector3(x, y, z);
-                print(transform.localEulerAngles);
-
                 playerCameraScript.enabled = true; //re-enables players ability to look around once flip is complete
                 isFinished = true;
             }
