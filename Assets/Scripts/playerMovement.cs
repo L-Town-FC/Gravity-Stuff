@@ -6,7 +6,9 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //TODO: Adjust values for Setting Gravity to make it smoother
+    //TODO: Attempt to rewrite setting gravity and changing gravity to use quaternion.rotate
+    //may need to put player in empty game object and rotate that. Not really sure what the fuck is going on
+    //make new branch for this
 
     //Action maps and inputs
     private PlayerControls playerControls;
@@ -51,6 +53,25 @@ public class playerMovement : MonoBehaviour
         GettingPlayerInputs();
         Debug.DrawRay(transform.position, up * 10f);
         Debug.DrawRay(transform.position, transform.forward * 10f, Color.red);
+        float forwardDot = Vector3.Dot(transform.forward, Vector3.forward);
+        float upDot = Vector3.Dot(transform.forward, Vector3.up);
+        float leftDot = Vector3.Dot(transform.forward, Vector3.left);
+
+        Vector3 closestForwad = Vector3.forward * Mathf.Sign(forwardDot);
+        float max = Mathf.Abs(forwardDot);
+        if (Mathf.Abs(upDot) > max)
+        {
+            max = Mathf.Abs(upDot);
+            closestForwad = Vector3.up * Mathf.Sign(upDot);
+        }
+
+        if (Mathf.Abs(leftDot) > max)
+        {
+            closestForwad = Vector3.left * Mathf.Sign(leftDot);
+        }
+
+        Debug.DrawRay(transform.position, closestForwad * 5f, Color.cyan);
+
     }
 
     //apply inputs to components in fixed update
@@ -110,13 +131,13 @@ public class playerMovement : MonoBehaviour
             Vector3 newUp = new Vector3(Mathf.RoundToInt(newGravity.x), 0f, 0f);
             float max = Mathf.Abs(newGravity.x);
 
-            if (Mathf.Abs(newGravity.y) > max)
+            if (Mathf.Abs(newGravity.y) >= max)
             {
                 max = Mathf.Abs(newGravity.y);
                 newUp = new Vector3(0f, Mathf.RoundToInt(newGravity.y), 0f);
             }
 
-            if (Mathf.Abs(newGravity.z) > max)
+            if (Mathf.Abs(newGravity.z) >= max)
             {
                 newUp = new Vector3(0f, 0f, Mathf.RoundToInt(newGravity.z));
             }
@@ -130,7 +151,7 @@ public class playerMovement : MonoBehaviour
                 gravityChanged(lastGravityChangeTime);
             }
 
-            StartCoroutine("SettingGravity");
+            StartCoroutine("NewSettingGravity");
         }
         
     }
@@ -218,6 +239,117 @@ public class playerMovement : MonoBehaviour
         movement.Disable();
         playerControls.PlayerMovement.Jump.Disable();
         playerControls.PlayerMovement.GravityChange.Disable();
+    }
+
+    IEnumerator NewSettingGravity()
+    {
+        playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
+        disableGravity = true;
+
+        Debug.DrawRay(transform.position, up * 5f, Color.cyan);
+        //changes the players up direction to its newly set one
+
+        //trying to make it so player is looking at same spot after rotation as before
+        //grabs the location of the point that the player is looking at. if the point is significantly far away, a point a set distance away is used instead
+        Vector3 playerLookPoint;
+        RaycastHit hit;
+        if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 60f))
+        {
+            playerLookPoint = hit.point;
+        }
+        else
+        {
+            playerLookPoint = playerCam.position + playerCam.forward * 60f;
+        }
+
+        Quaternion origRotation = transform.rotation;
+
+        float forwardDot = Vector3.Dot(transform.forward, Vector3.forward);
+        float upDot = Vector3.Dot(transform.forward, Vector3.up);
+        float leftDot = Vector3.Dot(transform.forward, Vector3.left);
+
+        print(forwardDot + ", " + upDot + ", " + leftDot);
+
+        Vector3 closestForwad = Vector3.forward * Mathf.Sign(forwardDot);
+        float max = Mathf.Abs(forwardDot);
+        if(Mathf.Abs(upDot) > max)
+        {
+            max = Mathf.Abs(upDot);
+            closestForwad = Vector3.up * Mathf.Sign(upDot);
+        }
+
+        if(Mathf.Abs(leftDot) > max)
+        {
+            closestForwad = Vector3.left * Mathf.Sign(leftDot);
+        }
+
+        transform.forward = closestForwad;
+
+        transform.rotation *= Quaternion.FromToRotation(transform.up, up);
+
+        if(Vector3.Dot(transform.forward, closestForwad) == -1)
+        {
+            transform.Rotate(transform.up, 180);
+        }
+
+        Vector3 projectedBodyLook = Vector3.ProjectOnPlane((playerLookPoint - playerCam.position).normalized, up);
+        //float bodyToLookPointAngle = Vector3.SignedAngle(transform.forward, projectedBodyLook, up); //rotates the body towards the point it was looking at slowly during its flip
+        //if(bodyToLookPointAngle > 2f)
+        //{
+        //    transform.Rotate(transform.InverseTransformVector(up), bodyToLookPointAngle);
+        //}
+
+        Quaternion finalRotation = transform.rotation;
+
+        transform.rotation = origRotation;
+
+        bool test = false;
+        Vector3 forward = transform.forward;
+        int counter = 0;
+        while (!test)
+        {
+            transform.rotation *= Quaternion.AngleAxis(1, closestForwad);
+            counter++;
+            if(counter >= 90)
+            {
+                test = true;
+            }
+            yield return null;
+        }
+
+        //bool isFinished = false;
+        //int counter = 0;
+
+        //while (!isFinished)
+        //{
+        //    counter++;
+ 
+
+        //    transform.rotation = Quaternion.Slerp(transform.rotation, finalRotation, 0.08f);
+
+        //    float dot = Quaternion.Dot(transform.rotation, finalRotation);
+ 
+        //    if(dot >= 0.999995f)
+        //    {
+        //        Vector3 initial = transform.localEulerAngles;
+        //        int x = Mathf.RoundToInt(initial.x);
+        //        int y = Mathf.RoundToInt(initial.y);
+        //        int z = Mathf.RoundToInt(initial.z);
+        //        transform.localEulerAngles = new Vector3(x, y, z);
+        //        isFinished = true;
+        //    }
+        //    if(counter > 70)
+        //    {
+        //        print(dot);
+
+        //    }
+        //    yield return null;
+        //}
+        playerCameraScript.enabled = true;
+        disableGravity = false;
+        StopCoroutine("NewSettingGravity");
+
+        yield return null;
     }
 
     IEnumerator SettingGravity() //may need to disable players camera inputs during this
