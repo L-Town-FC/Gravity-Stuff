@@ -14,7 +14,7 @@ public class playerCamera : MonoBehaviour
                                         //camera variables
     [SerializeField]
     Vector2 cameraSensitivity = new Vector2(0.5f, 0.3f);
-    Vector2 minAndMaxCameraAngle = new Vector2(-75f, 75f);
+    public static Vector2 minAndMaxCameraAngle = new Vector2(-80f, 80f);
 
     private void Awake()
     {

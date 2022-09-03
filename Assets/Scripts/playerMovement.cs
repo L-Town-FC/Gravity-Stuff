@@ -8,6 +8,7 @@ public class playerMovement : MonoBehaviour
 {
     //TODO: pre-calculate the final up/down camera angle between the playerCam forward and the original look point
     //add this step in the while loop and account for the max iterations
+    //calculating the anglebetween transformforward and playerlookdirection doesnt work all the time
 
     public bool dontStop;
 
@@ -230,7 +231,7 @@ public class playerMovement : MonoBehaviour
     {
         playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
         disableGravity = true;
-
+        Vector2 cameraLimits = playerCamera.minAndMaxCameraAngle;
         //changes the players up direction to its newly set one
 
         //trying to make it so player is looking at same spot after rotation as before
@@ -250,27 +251,36 @@ public class playerMovement : MonoBehaviour
         Quaternion origRotation = transform.rotation;
         transform.rotation *= Quaternion.AngleAxis(90, _rotationAxis);
 
-        Vector3 projectedLookANgle = Vector3.ProjectOnPlane(playerLookPoint - playerCam.position, transform.up);
-        float angleBetween = Vector3.SignedAngle(transform.forward, projectedLookANgle, transform.up);
+
+        Vector3 playerLookDirection = playerLookPoint - playerCam.position;
+        Vector3 projectedLookAngle = Vector3.ProjectOnPlane(playerLookDirection, transform.up);
+        float bodyAngleBetween = Vector3.SignedAngle(transform.forward, projectedLookAngle, transform.up);
 
         //Moving playerCam up and down is the only thing left
         //DO THAT HERE
-
+        Vector3 playerCamRotationAxis = Vector3.Cross(transform.forward, playerLookDirection);
+        float playerCamToFromAngle = -Vector3.SignedAngle(transform.forward.normalized, playerLookDirection.normalized, playerCamRotationAxis);
         transform.rotation = origRotation;
 
+        print(bodyAngleBetween);
+
         int counter = 0;
-        int maxIterations = 30;
+        int maxIterations = 90;
+        float camAngleIncrement = playerCamToFromAngle / (float)maxIterations;
         while(counter < maxIterations)
         {
             Debug.DrawLine(playerCam.position, playerLookPoint, Color.green);
+            Debug.DrawRay(playerCam.position, playerCam.forward * 20f, Color.red);
             transform.Rotate(_rotationAxis * 90 / maxIterations, Space.World);
-            transform.Rotate(Vector3.up * angleBetween / (float)maxIterations, Space.Self);
+            transform.Rotate(Vector3.up * bodyAngleBetween / (float)maxIterations, Space.Self);
+ 
             counter++;
             yield return null;
         }
 
         while (dontStop)
         {
+            Debug.DrawRay(playerCam.position, Vector3.Cross(transform.forward, playerLookDirection) * 10f, Color.blue);
             Debug.DrawLine(playerCam.position, playerLookPoint, Color.green);
             Debug.DrawRay(playerCam.position, playerCam.forward * 20f, Color.red);
             yield return null;
