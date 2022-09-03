@@ -6,9 +6,9 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //TODO: Attempt to rewrite setting gravity and changing gravity to use quaternion.rotate
-    //may need to put player in empty game object and rotate that. Not really sure what the fuck is going on
-    //make new branch for this
+    //TODO: pre-calculate the final up/down camera angle between the playerCam forward and the original look point
+    //add this step in the while loop and account for the max iterations
+
     public bool dontStop;
 
     //Action maps and inputs
@@ -252,38 +252,27 @@ public class playerMovement : MonoBehaviour
 
         Vector3 projectedLookANgle = Vector3.ProjectOnPlane(playerLookPoint - playerCam.position, transform.up);
         float angleBetween = Vector3.SignedAngle(transform.forward, projectedLookANgle, transform.up);
-        print(angleBetween);
+
+        //Moving playerCam up and down is the only thing left
+        //DO THAT HERE
+
         transform.rotation = origRotation;
 
-        Vector3 currentTransformUp = transform.up;
-        _rotationAxis = transform.InverseTransformDirection(_rotationAxis);
-
-        bool test = false;
         int counter = 0;
-        while (!test)
+        int maxIterations = 30;
+        while(counter < maxIterations)
         {
-
-            Debug.DrawRay(transform.position, Vector3.Cross(currentTransformUp, _rotationAxis) * 5f, Color.green);
-            Debug.DrawRay(transform.position, transform.up * 5f, Color.black);
-
-            transform.rotation *= Quaternion.AngleAxis(1, _rotationAxis);
-
+            Debug.DrawLine(playerCam.position, playerLookPoint, Color.green);
+            transform.Rotate(_rotationAxis * 90 / maxIterations, Space.World);
+            transform.Rotate(Vector3.up * angleBetween / (float)maxIterations, Space.Self);
             counter++;
-            if (counter >= 90)
-            {
-                test = true;
-            }
             yield return null;
         }
 
-        //second rotation to align player with look spot //USE THIS
-        transform.Rotate(transform.TransformDirection(transform.up), -angleBetween);
         while (dontStop)
         {
-            Debug.DrawRay(transform.position, Vector3.Cross(currentTransformUp, _rotationAxis) * 5f, Color.green);
-
-            Debug.DrawRay(transform.position, transform.up * 5f, Color.black);
-
+            Debug.DrawLine(playerCam.position, playerLookPoint, Color.green);
+            Debug.DrawRay(playerCam.position, playerCam.forward * 20f, Color.red);
             yield return null;
         }
 
@@ -370,6 +359,8 @@ public class playerMovement : MonoBehaviour
 
             yield return null;
         }
+
+        StopCoroutine("SettingGravity");
     }
 
 }
