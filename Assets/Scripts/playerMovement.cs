@@ -6,10 +6,7 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //TODO: pre-calculate the final up/down camera angle between the playerCam forward and the original look point
-    //add this step in the while loop and account for the max iterations
-    //calculating the anglebetween transformforward and playerlookdirection doesnt work all the time
-    //POSSIBLE EXPLANATION: The up used to calculate the cross product isnt being set correctly. Should try using the playercam right vector or transform.transformddirection up
+    //TODO: fix up/down on d-pad with fix gravity
 
     public bool dontStop;
 
@@ -137,7 +134,7 @@ public class playerMovement : MonoBehaviour
 
             newGravity = new Vector3(- obj.ReadValue<Vector2>().y, 0f, obj.ReadValue<Vector2>().x);
             rotationAxis = newGravity;
-
+            print(up);
             StartCoroutine("NewSettingGravity", rotationAxis);
         }
         
@@ -250,28 +247,26 @@ public class playerMovement : MonoBehaviour
 
         //need to precalculate this value and then precalculate how much the player needs to rotate to look at target
         Quaternion origRotation = transform.rotation;
-        Vector3 camEulerAngles = playerCam.localEulerAngles;
+        Quaternion camRoration = playerCam.rotation;
 
-        transform.rotation *= Quaternion.AngleAxis(90, _rotationAxis);
+        transform.Rotate(_rotationAxis, 90, Space.World);
 
         Vector3 playerLookDirection = playerLookPoint - playerCam.position;
         Vector3 projectedLookAngle = Vector3.ProjectOnPlane(playerLookDirection, up);
         float bodyAngleBetween = Vector3.SignedAngle(transform.forward, projectedLookAngle, up);
+        transform.Rotate(Vector3.up, bodyAngleBetween, Space.Self);
+
 
         //DOESNT WORK YET
         //Moving playerCam up and down is the only thing left
         //DO THAT HERE
-        //Vector3 playerCamRotationAxis = Vector3.Cross(transform.forward, playerLookDirection);
-        Vector3 playerCamRotationAxis = transform.right;
-        //float playerCamToFromAngle = -Vector3.SignedAngle(transform.forward.normalized, playerLookDirection.normalized, playerCamRotationAxis);
-        float playerCamToFromAngle = -Vector3.SignedAngle(transform.forward.normalized, playerLookDirection.normalized, playerCamRotationAxis);
-        print(playerCam.localEulerAngles);
-
-        
+        playerLookDirection = playerLookPoint - playerCam.position;
+        Vector3 playerCamRotationAxis = playerCam.right;
+        float playerCamToFromAngle = Vector3.SignedAngle(playerCam.forward, playerLookDirection, playerCamRotationAxis);
 
 
         transform.rotation = origRotation;
-        playerCam.localEulerAngles = camEulerAngles;
+        playerCam.rotation = camRoration;
 
         int counter = 0;
         int maxIterations = 90;
@@ -296,7 +291,7 @@ public class playerMovement : MonoBehaviour
             yield return null;
         }
 
-        //playerCameraScript.enabled = true;
+        playerCameraScript.enabled = true;
         //disableGravity = false;
         StopCoroutine("NewSettingGravity");
 
