@@ -1841,7 +1841,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontStop: 0
-  disableGravity: 1
+  disableGravity: 0
+  gravityChangeSpeed: 80
 --- !u!114 &2084556582
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,7 +6,9 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //TODO: fix up/down on d-pad with fix gravity
+    //TODO: up isnt set right sometimes
+    //Look into input vector
+    //reenable debug.draw rays
 
     public bool dontStop;
 
@@ -27,6 +29,7 @@ public class playerMovement : MonoBehaviour
     float lastGravityChangeTime = 0f;
     float acceleration = -0.75f; //acceleration due to gravity
     public bool disableGravity = false;
+    public float gravityChangeSpeed = 10f;
 
     Vector3[] localLowerBounds; //holds points on player that are raycast from to check if grounded
     bool isGrounded = false;
@@ -132,10 +135,9 @@ public class playerMovement : MonoBehaviour
 
             Vector3 rotationAxis;
 
-            newGravity = new Vector3(- obj.ReadValue<Vector2>().y, 0f, obj.ReadValue<Vector2>().x);
+            newGravity = new Vector3(- obj.ReadValue<Vector2>().y, 0f, - obj.ReadValue<Vector2>().x);
             rotationAxis = newGravity;
-            print(up);
-            StartCoroutine("NewSettingGravity", rotationAxis);
+            StartCoroutine("SettingGravity", rotationAxis);
         }
         
     }
@@ -225,7 +227,7 @@ public class playerMovement : MonoBehaviour
         playerControls.PlayerMovement.GravityChange.Disable();
     }
 
-    IEnumerator NewSettingGravity(Vector3 _rotationAxis)
+    IEnumerator SettingGravity(Vector3 _rotationAxis)
     {
         playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
         disableGravity = true;
@@ -256,126 +258,55 @@ public class playerMovement : MonoBehaviour
         float bodyAngleBetween = Vector3.SignedAngle(transform.forward, projectedLookAngle, up);
         transform.Rotate(Vector3.up, bodyAngleBetween, Space.Self);
 
+        //stops the player from completely rotating around in order to look at object when flipping gravity back or forward
+        //may disable this
+        if(bodyAngleBetween > 150f)
+        {
+            bodyAngleBetween -= 180f;
+        }else if(bodyAngleBetween < -150f)
+        {
+            bodyAngleBetween += 180f;
+        }
 
-        //DOESNT WORK YET
-        //Moving playerCam up and down is the only thing left
-        //DO THAT HERE
+        //calculates angle between playerCam and previous look position
         playerLookDirection = playerLookPoint - playerCam.position;
         Vector3 playerCamRotationAxis = playerCam.right;
         float playerCamToFromAngle = Vector3.SignedAngle(playerCam.forward, playerLookDirection, playerCamRotationAxis);
 
-
         transform.rotation = origRotation;
         playerCam.rotation = camRoration;
 
-        int counter = 0;
-        int maxIterations = 90;
-        float camAngleIncrement = playerCamToFromAngle / (float)maxIterations;
-        while(counter < maxIterations)
+        float incrementor = 0f; //holds how many degrees player has turned already
+        float increment = gravityChangeSpeed * Time.fixedDeltaTime;
+        float maxChange = 90f; //degrees players axis will change by
+
+        //the players yaw and cameras pitch rates are based on the players axis turning rate. The faster the turning rate, the larger the increment, and the faster everything else occurs
+        while (incrementor < maxChange)
         {
+            if(incrementor + increment > 90f)
+            {
+                increment = maxChange - incrementor;
+            }
             Debug.DrawLine(playerCam.position, playerLookPoint, Color.green);
             Debug.DrawRay(playerCam.position, playerCam.forward * 20f, Color.red);
-            transform.Rotate(_rotationAxis * 90 / maxIterations, Space.World);
-            transform.Rotate(Vector3.up * bodyAngleBetween / (float)maxIterations, Space.Self);
-            playerCam.Rotate(Vector3.right * playerCamToFromAngle / (float)maxIterations, Space.Self);
- 
-            counter++;
+            transform.Rotate(_rotationAxis * increment, Space.World); //aligns transform.up with new calculated up
+            transform.Rotate(Vector3.up * bodyAngleBetween * increment / maxChange, Space.Self); //rotates player body locally to face towards previous looked at spot
+            playerCam.Rotate(Vector3.right * playerCamToFromAngle * increment / maxChange, Space.Self); //adjusts camera to look at previously looked at spot
+
+            incrementor += increment;
             yield return null;
         }
 
-
         while (dontStop)
         {
-
-            Debug.DrawRay(transform.position, transform.right * 5f, Color.red);
+            Debug.DrawLine(playerCam.position, playerLookPoint, Color.green);
             yield return null;
         }
 
         playerCameraScript.enabled = true;
-        //disableGravity = false;
-        StopCoroutine("NewSettingGravity");
+        disableGravity = false;
+        StopCoroutine("SettingGravity");
 
         yield return null;
     }
-
-    IEnumerator SettingGravity() //may need to disable players camera inputs during this
-    {
-        playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
-
-        Debug.DrawRay(transform.position, up * 5f, Color.cyan);
-        //changes the players up direction to its newly set one
-        bool isFinished = false;
-        Vector3 finalDirection = transform.position + transform.TransformDirection(Vector3.forward);
-
-        //trying to make it so player is looking at same spot after rotation as before
-        //grabs the location of the point that the player is looking at. if the point is significantly far away, a point a set distance away is used instead
-        Vector3 playerLookPoint;
-        RaycastHit hit;
-        if (Physics.Raycast(playerCam.position, playerCam.forward, out hit, 60f))
-        {
-            playerLookPoint = hit.point;
-        }
-        else
-        {
-            playerLookPoint = playerCam.position + playerCam.forward * 60f;
-        }
-
-        //projects the vector from what the player is looking at onto new up facing plane so the players body can be rotated towards it during gravity change
-        //this ensures that the player is facing the same direction before and after the change in gravity
-        Vector3 projectedBodyLook = Vector3.ProjectOnPlane((playerLookPoint - playerCam.position).normalized, up);
-
-        int counter = 0;
-        while (!isFinished)
-        {
-            counter++;
-            float dot = Vector3.Dot(transform.up, up);
-            float camDot = Vector3.Dot(playerCam.forward, (playerLookPoint - playerCam.position).normalized);
-
-            Quaternion slopeRotation = Quaternion.FromToRotation(transform.up, up);
-
-            transform.rotation = Quaternion.Lerp(transform.rotation, slopeRotation * transform.rotation, 7f * Time.deltaTime);
-
-            if(dot <= 0.98f)
-            {
-                float bodyToLookPointAngle = Vector3.SignedAngle(transform.forward, projectedBodyLook, up); //rotates the body towards the point it was looking at slowly during its flip
-                if(Mathf.Abs(bodyToLookPointAngle) > 1f)
-                {
-                    transform.Rotate(transform.InverseTransformVector(up), Mathf.Sign(bodyToLookPointAngle) * 0.8f);
-                }
-            }
-
-            if(camDot <= 0.995f)
-            {
-                float angleBetween = Vector3.Angle(transform.up, playerCam.forward) - Vector3.Angle(transform.up, playerLookPoint - playerCam.position);
-                playerCam.localEulerAngles += new Vector3(-Mathf.Sign(angleBetween) * 0.25f, 0f, 0f);
-                print(angleBetween);
-            }
-
-
-            if (dot >= 0.99999f) //checks if the players current up is close to its target up
-            {
-                float angleSensitivity = 3f;
-                //whens its close it just manually sets it to be exact
-                transform.rotation.SetLookRotation(finalDirection, up);
-
-                //rounds the players euler angles to intergers. without this the player may be tilted by a few degrees which would be jarring/look bad
-                Vector3 fineAdjustment = transform.localEulerAngles;
-
-                //lets nearest interger be angleSensitivity away instead of 1. player was occasionally getting stuck anywhere between desired angle (90,180,270,360) +/- angleSensitivity degrees because of the lack of precision of dot product
-                float x = Mathf.RoundToInt(fineAdjustment.x / angleSensitivity) * angleSensitivity;
-                float y = Mathf.RoundToInt(fineAdjustment.y / angleSensitivity) * angleSensitivity;
-                float z = Mathf.RoundToInt(fineAdjustment.z / angleSensitivity) * angleSensitivity;
-
-
-                transform.localEulerAngles = new Vector3(x, y, z);
-                playerCameraScript.enabled = true; //re-enables players ability to look around once flip is complete
-                isFinished = true;
-            }
-
-            yield return null;
-        }
-
-        StopCoroutine("SettingGravity");
-    }
-
 }
