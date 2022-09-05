@@ -6,12 +6,6 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //TODO: up isnt set right sometimes
-    //Look into input vector
-    //reenable debug.draw rays
-
-    public bool dontStop;
-
     //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
@@ -110,34 +104,52 @@ public class playerMovement : MonoBehaviour
             //checks the direction the player pressed on the d-pad and compares it world vectors and then sets the players up values equal to world vector that is closest to the input direction
             newGravity = transform.TransformDirection(newGravity);
 
-            Vector3 newUp = new Vector3(Mathf.RoundToInt(newGravity.x), 0f, 0f);
+            Vector3 newUp = new Vector3(newGravity.x, 0f, 0f);
             float max = Mathf.Abs(newGravity.x);
 
             if (Mathf.Abs(newGravity.y) >= max)
             {
                 max = Mathf.Abs(newGravity.y);
-                newUp = new Vector3(0f, Mathf.RoundToInt(newGravity.y), 0f);
+                newUp = new Vector3(0f, newGravity.y, 0f);
             }
 
             if (Mathf.Abs(newGravity.z) >= max)
             {
-                newUp = new Vector3(0f, 0f, Mathf.RoundToInt(newGravity.z));
+                newUp = new Vector3(0f, 0f, newGravity.z);
             }
 
             up = -newUp;
 
             lastGravityChangeTime = Time.time;
 
+
+            Vector3 rotationAxis = transform.TransformDirection(new Vector3(-obj.ReadValue<Vector2>().y, 0f, obj.ReadValue<Vector2>().x));
+            Vector3 finalRotationAxis = Vector3.zero;
+
+            max = -0.01f;
+            if(Mathf.Abs(rotationAxis.x) >= max)
+            {
+                max = Mathf.Abs(rotationAxis.x);
+                finalRotationAxis = new Vector3(Mathf.Sign(rotationAxis.x), 0f, 0f);
+            }
+
+            if (Mathf.Abs(rotationAxis.y) >= max)
+            {
+                max = Mathf.Abs(rotationAxis.y);
+                finalRotationAxis = new Vector3(0f, rotationAxis.y, 0f);
+            }
+
+            if (Mathf.Abs(rotationAxis.z) >= max)
+            {
+                finalRotationAxis = new Vector3(0f, 0f,rotationAxis.z);
+            }
+
             if(gravityChanged != null) //calling event to alert other scripts that the gravity has successfully changed
             {
                 gravityChanged(lastGravityChangeTime);
             }
 
-            Vector3 rotationAxis;
-
-            newGravity = new Vector3(- obj.ReadValue<Vector2>().y, 0f, - obj.ReadValue<Vector2>().x);
-            rotationAxis = newGravity;
-            StartCoroutine("SettingGravity", rotationAxis);
+            StartCoroutine("SettingGravity", finalRotationAxis);
         }
         
     }
@@ -231,7 +243,6 @@ public class playerMovement : MonoBehaviour
     {
         playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
         disableGravity = true;
-        Vector2 cameraLimits = playerCamera.minAndMaxCameraAngle;
         //changes the players up direction to its newly set one
 
         //trying to make it so player is looking at same spot after rotation as before
@@ -251,7 +262,7 @@ public class playerMovement : MonoBehaviour
         Quaternion origRotation = transform.rotation;
         Quaternion camRoration = playerCam.rotation;
 
-        transform.Rotate(_rotationAxis, 90, Space.World);
+        transform.Rotate(_rotationAxis, 90f, Space.World);
 
         Vector3 playerLookDirection = playerLookPoint - playerCam.position;
         Vector3 projectedLookAngle = Vector3.ProjectOnPlane(playerLookDirection, up);
@@ -280,10 +291,10 @@ public class playerMovement : MonoBehaviour
         float increment = gravityChangeSpeed * Time.fixedDeltaTime;
         float maxChange = 90f; //degrees players axis will change by
 
-        //the players yaw and cameras pitch rates are based on the players axis turning rate. The faster the turning rate, the larger the increment, and the faster everything else occurs
+        //the players yaw and cameras pitch rates are based on the players axis turning rate.The faster the turning rate, the larger the increment, and the faster everything else occurs
         while (incrementor < maxChange)
         {
-            if(incrementor + increment > 90f)
+            if (incrementor + increment > 90f)
             {
                 increment = maxChange - incrementor;
             }
@@ -297,9 +308,11 @@ public class playerMovement : MonoBehaviour
             yield return null;
         }
 
-        while (dontStop)
+        float remainingAngle = Vector3.Angle(transform.up, up);
+        int count = 15;
+        for (int i = 0; i < count; i++)
         {
-            Debug.DrawLine(playerCam.position, playerLookPoint, Color.green);
+            transform.Rotate(_rotationAxis, remainingAngle / count, Space.World);
             yield return null;
         }
 
