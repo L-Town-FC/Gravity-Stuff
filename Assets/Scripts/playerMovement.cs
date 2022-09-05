@@ -308,6 +308,8 @@ public class playerMovement : MonoBehaviour
             yield return null;
         }
 
+        //if not perfectly aligned with different cardinal unit vectors the rotation doesnt complete fully. this is a workaround that checks the remaining angle and completes it
+        //is barely noticable but something to look at when bored one day
         float remainingAngle = Vector3.Angle(transform.up, up);
         int count = 15;
         for (int i = 0; i < count; i++)
