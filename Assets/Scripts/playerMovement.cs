@@ -30,6 +30,8 @@ public class playerMovement : MonoBehaviour
     float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     float jumpForce = 20f; //velocity magnitude that is set when player jumps
     float moveSpeed = 7f; //speed at which players moves
+    float currentMoveSpeed = 0f;
+    Vector3 currentMoveDir = Vector3.zero;
 
     public delegate void GravityChange(float currentTime);
     public static event GravityChange gravityChanged;
@@ -68,9 +70,20 @@ public class playerMovement : MonoBehaviour
         {
             verticalVelocity = 0f;
         }
-        
 
-        rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(movementInput * moveSpeed * Time.fixedDeltaTime));
+        //sets players direction to last input direction. This will be used to let the player continue in the direction they were moving even when the when their is no input
+        //this will be used to handle ramp down speed when moving and also potentially sliding if I feel like implementing that
+        if(movementInput.magnitude != 0f)
+        {
+            currentMoveDir = movementInput;
+        }
+
+        //ramps the players move speed up and down so it doesnt go from zero to max instantly
+        currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, moveSpeed * movementInput.magnitude, 0.5f);
+
+        //can probably clean this up
+        //may need to move the transform.transformdirection to wheere current movedirection is set. This would allow the player to continue in their previosuly designated direction when flipping gravity
+        rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(currentMoveDir * currentMoveSpeed * Time.fixedDeltaTime));
     }
 
     private void OnDisable()
@@ -229,6 +242,7 @@ public class playerMovement : MonoBehaviour
     void GettingPlayerInputs()
     {
         movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
+        
         isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
     }
 
@@ -317,6 +331,13 @@ public class playerMovement : MonoBehaviour
             transform.Rotate(_rotationAxis, remainingAngle / count, Space.World);
             yield return null;
         }
+
+        //may need to switch this to truncation as rounding to int may be too jarring
+        float x = Mathf.Round(transform.localEulerAngles.x);
+        float y = Mathf.Round(transform.localEulerAngles.y);
+        float z = Mathf.Round(transform.localEulerAngles.z);
+
+        transform.localEulerAngles = new Vector3(x, y, z);
 
         playerCameraScript.enabled = true;
         disableGravity = false;
