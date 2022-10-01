@@ -23,15 +23,25 @@ public class playerMovement : MonoBehaviour
     float lastGravityChangeTime = 0f;
     float acceleration = -0.75f; //acceleration due to gravity
     public bool disableGravity = false;
-    public float gravityChangeSpeed = 10f;
-
-    Vector3[] localLowerBounds; //holds points on player that are raycast from to check if grounded
-    bool isGrounded = false;
+    bool changingGravity = false;
+    public float gravityChangeSpeed = 10f; //rate at which players gravity is changed. higher number means faster
     float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     float jumpForce = 20f; //velocity magnitude that is set when player jumps
+
+    //checking if grounded variables
+    Vector3[] localLowerBounds; //holds points on player that are raycast from to check if grounded
+    bool isGrounded = false;
+
+    //movement variables
     float moveSpeed = 7f; //speed at which players moves
-    float currentMoveSpeed = 0f;
     Vector3 currentMoveDir = Vector3.zero;
+    Vector3 currentMoveInput = Vector3.zero;
+    Vector3 currentCombinedMoveDir = Vector3.zero;
+
+    //rate at which player can change direction. It takes more time to change direction in the air than on the ground
+    float maxGroundDirChange = 0.25f;
+    float maxAirDirChange = 0.1f;
+    float dirChange = 0.25f;
 
     public delegate void GravityChange(float currentTime);
     public static event GravityChange gravityChanged;
@@ -60,10 +70,12 @@ public class playerMovement : MonoBehaviour
         if (!isGrounded) //if the player is grounded reset their downward motion so it doesnt constantly build up. if they are not grounded, begin applying gravity
         {
             verticalVelocity = Gravity(verticalVelocity, acceleration);
+            dirChange = maxAirDirChange;
         }
         else
         {
             verticalVelocity = Mathf.Clamp(verticalVelocity, 0f, Mathf.Infinity); //lowerlimit is -0.1f to make sure it always reached ground and doesnt hover slightly above the ground, positive infinity is so a jump force can be added
+            dirChange = maxGroundDirChange;
         }
 
         if (disableGravity)
@@ -77,13 +89,19 @@ public class playerMovement : MonoBehaviour
         {
             currentMoveDir = movementInput;
         }
+        else
+        {
+            currentMoveDir = Vector3.zero;
+        }
 
-        //ramps the players move speed up and down so it doesnt go from zero to max instantly
-        currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, moveSpeed * movementInput.magnitude, 0.5f);
+        //may change in future, player now continues direction they were last moving in before gravity change, while gravity change is taking place. Seems off right now
+        if (!changingGravity)
+        {
+            currentCombinedMoveDir = transform.up * verticalVelocity + transform.TransformDirection(currentMoveDir) * moveSpeed;
+        }
+        rb.MovePosition(rb.position + currentCombinedMoveDir * Time.fixedDeltaTime);
 
-        //can probably clean this up
-        //may need to move the transform.transformdirection to wheere current movedirection is set. This would allow the player to continue in their previosuly designated direction when flipping gravity
-        rb.MovePosition(rb.position + transform.up * verticalVelocity * Time.fixedDeltaTime + transform.TransformDirection(currentMoveDir * currentMoveSpeed * Time.fixedDeltaTime));
+        currentMoveInput = movementInput;
     }
 
     private void OnDisable()
@@ -241,8 +259,9 @@ public class playerMovement : MonoBehaviour
 
     void GettingPlayerInputs()
     {
-        movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
-        
+        //movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
+        movementInput = new Vector3(Mathf.MoveTowards(currentMoveInput.x, movement.ReadValue<Vector2>().x, dirChange), 0f, Mathf.MoveTowards(currentMoveInput.z,movement.ReadValue<Vector2>().y, dirChange));
+
         isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
     }
 
@@ -255,9 +274,13 @@ public class playerMovement : MonoBehaviour
 
     IEnumerator SettingGravity(Vector3 _rotationAxis)
     {
+        //Purpose: This IEnumerator's purpose is to alter which direction gravity is for the player. To do this, a new gravity direction is chosen by some player means
+        //Gravity and player controls are disabled to make the players movement more predictable when this IEnumerator is triggered
+        //The player is rotated so that their players up is opposite the new gravity direction
+        //This IEnumerator also attempts to make the player look at the same spot throughout the transition to make the transition less jarring
+        changingGravity = true;
         playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
         disableGravity = true;
-        //changes the players up direction to its newly set one
 
         //trying to make it so player is looking at same spot after rotation as before
         //grabs the location of the point that the player is looking at. if the point is significantly far away, a point a set distance away is used instead
@@ -341,6 +364,7 @@ public class playerMovement : MonoBehaviour
 
         playerCameraScript.enabled = true;
         disableGravity = false;
+        changingGravity = false;
         StopCoroutine("SettingGravity");
 
         yield return null;
