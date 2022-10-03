@@ -3,37 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class playerShooting : MonoBehaviour
+public class baseGun : MonoBehaviour
 {
+    protected int clipSize;
+    protected enum FireType {semi, full}
+    protected FireType fireType;
+    protected float timeBetweenShots;
+
     private PlayerControls playerControls;
-    Transform gunHolder;
-    [SerializeField]
-    GameObject gun;
-    Transform playerCam;
-    GameObject playerGun;
+
     Transform endOfBarrel;
 
-    private void Awake()
+    // Start is called before the first frame update
+
+    protected virtual void Awake()
     {
         playerControls = new PlayerControls();
-        playerCam = transform.GetChild(0);
-        gunHolder = playerCam.GetChild(0);
-        playerGun = Instantiate(gun, gunHolder.position, Quaternion.identity, gunHolder);
-        endOfBarrel = playerGun.transform.GetChild(0);
+        endOfBarrel = transform.GetChild(0);
     }
 
-    // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
-        
+
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
-        playerGun.transform.rotation = playerCam.transform.rotation;
+        
     }
-
     void Shoot(InputAction.CallbackContext obj)
     {
         print("BANG");

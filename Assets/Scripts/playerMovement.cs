@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
+    //add action to instatiate gun for player to use and set its rotation to 0
+
     //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
