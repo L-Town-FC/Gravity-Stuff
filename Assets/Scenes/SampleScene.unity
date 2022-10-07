@@ -130,6 +130,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1627406004}
     m_Modifications:
+    - target: {fileID: 581350387010619807, guid: f5e8f2f63613ca94b8015deed1d91116,
+        type: 3}
+      propertyPath: bullet
+      value: 
+      objectReference: {fileID: 9158197951878752988, guid: fd8b491a72b24a840bc92aa814bcdb54,
+        type: 3}
+    - target: {fileID: 581350387010619807, guid: f5e8f2f63613ca94b8015deed1d91116,
+        type: 3}
+      propertyPath: fireType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 880663613934106319, guid: f5e8f2f63613ca94b8015deed1d91116,
         type: 3}
       propertyPath: m_Name
@@ -831,7 +842,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh27732
+  m_Name: pb_Mesh27736
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
