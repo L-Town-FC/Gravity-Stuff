@@ -4,30 +4,40 @@ using UnityEngine;
 
 public class baseBullet : MonoBehaviour
 {
+    //Rigidbody rb;
     [SerializeField]
-    protected float bulletSpeed = 10f;
+    protected float bulletSpeed = 40f;
     protected float bulletAccel;
-    protected float bulletSize;
+    [SerializeField]
+    protected float bulletSize = 0.5f;
+    float bulletLife = 3f;
+    float startTime;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        //rb = GetComponent<Rigidbody>();
+        transform.localScale *= bulletSize;
+        startTime = Time.time;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.DrawRay(transform.position, transform.forward * 3f, Color.red);
+        if(Time.time - startTime > bulletLife)
+        {
+            Destroy(transform.gameObject);
+        }
     }
 
     private void FixedUpdate()
     {
-        transform.Translate(transform.forward * bulletSpeed * Time.fixedDeltaTime);
+        transform.position += transform.forward * bulletSpeed * Time.fixedDeltaTime;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        print("here");
         Destroy(transform.gameObject);
     }
 }

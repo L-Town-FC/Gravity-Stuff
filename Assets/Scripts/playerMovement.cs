@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class playerMovement : MonoBehaviour
 {
-    //add action to instatiate gun for player to use and set its rotation to 0
+    //TODO: Move changingGravity into player action manager so everything can access it
 
     //Action maps and inputs
     private PlayerControls playerControls;

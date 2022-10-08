@@ -10,8 +10,9 @@ public class baseGun : MonoBehaviour
     [SerializeField]
     protected FireType fireType;
     protected bool isShooting = false;
+    [SerializeField]
     protected float timeBetweenShots = 1f;
-    protected float timeOfLastShot = 0f;
+    protected float timeOfLastShot = -5f;
     [SerializeField]
     protected GameObject bullet;
 
@@ -36,6 +37,7 @@ public class baseGun : MonoBehaviour
     protected virtual void Update()
     {
         Shooting();
+        Debug.DrawRay(endOfBarrel.position, endOfBarrel.forward * 5f, Color.black);
     }
     //checks when trigger is pulled
     void Shoot(InputAction.CallbackContext obj)
@@ -64,7 +66,9 @@ public class baseGun : MonoBehaviour
             {
                 timeOfLastShot = Time.time;
                 isShooting = false;
-                Instantiate(bullet, endOfBarrel.position, Quaternion.Euler(transform.forward));
+                
+                GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
+                temp.transform.forward = endOfBarrel.forward;
             }
         }
         else if(fireType == FireType.fullAuto)
@@ -72,7 +76,8 @@ public class baseGun : MonoBehaviour
             if (Time.time - timeOfLastShot > timeBetweenShots)
             {
                 timeOfLastShot = Time.time;
-                Instantiate(bullet, endOfBarrel.position, Quaternion.Euler(transform.TransformDirection(transform.forward)));
+                GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
+                temp.transform.forward = endOfBarrel.forward;
             }
         }
     }
@@ -80,6 +85,7 @@ public class baseGun : MonoBehaviour
     private void OnEnable()
     {
         playerControls.PlayerMovement.Shoot.performed += Shoot;
+        playerControls.PlayerMovement.Shoot.canceled += Shoot;
         playerControls.PlayerMovement.Shoot.Enable();
     }
 
