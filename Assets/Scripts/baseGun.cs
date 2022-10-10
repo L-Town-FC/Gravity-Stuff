@@ -5,7 +5,8 @@ using UnityEngine.InputSystem;
 
 public class baseGun : MonoBehaviour
 {
-    protected int clipSize;
+    protected int clipSize = 30;
+    protected int bulletsRemaining;
     protected enum FireType {semi, fullAuto}
     [SerializeField]
     protected FireType fireType;
@@ -26,6 +27,7 @@ public class baseGun : MonoBehaviour
     {
         playerControls = new PlayerControls();
         endOfBarrel = transform.GetChild(0);
+        bulletsRemaining = clipSize;
     }
 
     protected virtual void Start()
@@ -52,6 +54,13 @@ public class baseGun : MonoBehaviour
             isShooting = false;
         }
     }
+    void Reload(InputAction.CallbackContext obj)
+    {
+        if (obj.performed)
+        {
+            bulletsRemaining = clipSize;
+        }
+    }
 
     //determines when gun actually shoots
     void Shooting()
@@ -60,37 +69,53 @@ public class baseGun : MonoBehaviour
         {
             return;
         }
+
+        if(bulletsRemaining == 0)
+        {
+            return;
+        }
+
         if(fireType == FireType.semi)
         {
             if (Time.time - timeOfLastShot > timeBetweenShots)
             {
-                timeOfLastShot = Time.time;
+                SpawnBullet();
                 isShooting = false;
-                
-                GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
-                temp.transform.forward = endOfBarrel.forward;
             }
         }
         else if(fireType == FireType.fullAuto)
         {
             if (Time.time - timeOfLastShot > timeBetweenShots)
             {
-                timeOfLastShot = Time.time;
-                GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
-                temp.transform.forward = endOfBarrel.forward;
+                SpawnBullet();
             }
         }
+    }
+
+
+    void SpawnBullet()
+    {
+        timeOfLastShot = Time.time;
+        GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
+        temp.transform.forward = endOfBarrel.forward;
+        bulletsRemaining -= 1;
     }
 
     private void OnEnable()
     {
         playerControls.PlayerMovement.Shoot.performed += Shoot;
         playerControls.PlayerMovement.Shoot.canceled += Shoot;
+        playerControls.PlayerMovement.Reload.performed += Reload;
         playerControls.PlayerMovement.Shoot.Enable();
+        playerControls.PlayerMovement.Reload.Enable();
     }
 
     private void OnDisable()
     {
+        playerControls.PlayerMovement.Shoot.performed -= Shoot;
+        playerControls.PlayerMovement.Shoot.canceled -= Shoot;
+        playerControls.PlayerMovement.Reload.performed -= Reload;
         playerControls.PlayerMovement.Shoot.Disable();
+        playerControls.PlayerMovement.Reload.Enable();
     }
 }
