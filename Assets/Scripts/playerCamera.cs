@@ -39,6 +39,16 @@ public class playerCamera : MonoBehaviour
     private void Update()
     {
         cameraInput = new Vector2(cameraMovement.ReadValue<Vector2>().x, cameraMovement.ReadValue<Vector2>().y);
+        //Very janky deadzone. will need to fix
+        if(Mathf.Abs(cameraInput.x) < 1.5f)
+        {
+            cameraInput.x = 0f;
+        }
+        if (Mathf.Abs(cameraInput.y) < 1.5f)
+        {
+            cameraInput.y = 0f;
+        }
+        print(cameraInput);
     }
 
     private void FixedUpdate()
