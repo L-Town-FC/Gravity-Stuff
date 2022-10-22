@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class playerUI : MonoBehaviour
 {
+    [SerializeField]
+    GameObject player;
+
     [SerializeField]
     RectTransform gravityCooldown;
     Rect gravityCooldownRect;
@@ -14,14 +17,21 @@ public class playerUI : MonoBehaviour
     [Range(0, 1)]
     public static float barWidth;
 
+    [SerializeField]
+    TMP_Text ammoText;
+    [SerializeField]
+    GameObject currentGun;
+
     private void OnEnable()
     {
         playerMovement.gravityChanged += UpdateGravityChangeTime;
+        baseGun.ammoUpdate += UpdateAmmoCount;
     }
 
     private void OnDisable()
     {
         playerMovement.gravityChanged -= UpdateGravityChangeTime;
+        baseGun.ammoUpdate -= UpdateAmmoCount;
     }
 
     private void Awake()
@@ -47,5 +57,10 @@ public class playerUI : MonoBehaviour
     void UpdateGravityChangeTime(float currentTime)
     {
         gravityChangeTime = currentTime;
+    }
+
+    void UpdateAmmoCount(int currentAmmo, int maxAmmo)
+    {
+        ammoText.text = currentAmmo + "/" + maxAmmo;
     }
 }

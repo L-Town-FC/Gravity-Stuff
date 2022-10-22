@@ -21,6 +21,9 @@ public class baseGun : MonoBehaviour
 
     Transform endOfBarrel;
 
+    public delegate void UpdateAmmo(int currentAmmo, int maxAmmo);
+    public static event UpdateAmmo ammoUpdate;
+
     // Start is called before the first frame update
 
     protected virtual void Awake()
@@ -59,6 +62,10 @@ public class baseGun : MonoBehaviour
         if (obj.performed)
         {
             bulletsRemaining = clipSize;
+            if (ammoUpdate != null)
+            {
+                ammoUpdate(bulletsRemaining, clipSize);
+            }
         }
     }
 
@@ -99,6 +106,10 @@ public class baseGun : MonoBehaviour
         GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
         temp.transform.forward = endOfBarrel.forward;
         bulletsRemaining -= 1;
+        if(ammoUpdate != null)
+        {
+            ammoUpdate(bulletsRemaining, clipSize);
+        }
     }
 
     private void OnEnable()
@@ -108,6 +119,8 @@ public class baseGun : MonoBehaviour
         playerControls.PlayerMovement.Reload.performed += Reload;
         playerControls.PlayerMovement.Shoot.Enable();
         playerControls.PlayerMovement.Reload.Enable();
+
+
     }
 
     private void OnDisable()
