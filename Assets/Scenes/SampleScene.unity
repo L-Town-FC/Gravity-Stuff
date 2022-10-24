@@ -139,7 +139,7 @@ PrefabInstance:
     - target: {fileID: 581350387010619807, guid: f5e8f2f63613ca94b8015deed1d91116,
         type: 3}
       propertyPath: fireType
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 581350387010619807, guid: f5e8f2f63613ca94b8015deed1d91116,
         type: 3}
@@ -1062,7 +1062,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh27776
+  m_Name: pb_Mesh27784
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2

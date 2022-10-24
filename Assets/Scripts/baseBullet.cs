@@ -6,6 +6,7 @@ public class baseBullet : MonoBehaviour
 {
     Collider bulletCollider;
     Renderer bulletRenderer;
+    Light bulletLight;
     TrailRenderer trail;
     [SerializeField]
     protected float bulletSpeed = 40f;
@@ -16,6 +17,7 @@ public class baseBullet : MonoBehaviour
     float startTime;
     bool shrinkTrail = false;
     GradientColorKey[] gradientColorKeys;
+    ParticleSystem ps;
 
     float alpha1 = 1f;
     float alpha2 = 0.89f;
@@ -23,12 +25,17 @@ public class baseBullet : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ps = GetComponent<ParticleSystem>();
         bulletCollider = GetComponent<Collider>();
         bulletRenderer = GetComponent<Renderer>();
+        bulletLight = GetComponent<Light>();
         trail = GetComponent<TrailRenderer>();
         transform.localScale *= bulletSize;
         startTime = Time.time;
         gradientColorKeys = trail.colorGradient.colorKeys;
+
+        var emission = ps.emission; // Stores the module in a local variable
+        emission.enabled = false; // Applies the new value directly to the Particle System
     }
 
     // Update is called once per frame
@@ -56,6 +63,8 @@ public class baseBullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        ps.Emit(50);
+        bulletLight.enabled = false;
         bulletSpeed = 0f;
         bulletCollider.enabled = false;
         bulletRenderer.enabled = false;
