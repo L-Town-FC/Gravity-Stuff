@@ -48,7 +48,6 @@ public class playerCamera : MonoBehaviour
         {
             cameraInput.y = 0f;
         }
-        print(cameraInput);
     }
 
     private void FixedUpdate()

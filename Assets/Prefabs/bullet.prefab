@@ -103,6 +103,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSpeed: 40
   bulletSize: 1
+  alpha1: 0
+  alpha2: 0
 --- !u!54 &-3500558276954159934
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -256,7 +258,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 10
+  m_Time: 5
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
