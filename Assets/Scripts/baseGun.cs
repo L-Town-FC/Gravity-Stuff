@@ -20,6 +20,7 @@ public class baseGun : MonoBehaviour
     private PlayerControls playerControls;
 
     Transform endOfBarrel;
+    Transform playerCam;
 
     public delegate void UpdateAmmo(int currentAmmo, int maxAmmo);
     public static event UpdateAmmo ammoUpdate;
@@ -29,6 +30,8 @@ public class baseGun : MonoBehaviour
     protected virtual void Awake()
     {
         playerControls = new PlayerControls();
+        //janky way of getting playerCam
+        playerCam = transform.parent.parent;
         endOfBarrel = transform.GetChild(0);
         bulletsRemaining = clipSize;
     }
@@ -57,6 +60,7 @@ public class baseGun : MonoBehaviour
             isShooting = false;
         }
     }
+    //checks if reload button has been pushed
     void Reload(InputAction.CallbackContext obj)
     {
         if (obj.performed)
@@ -72,16 +76,19 @@ public class baseGun : MonoBehaviour
     //determines when gun actually shoots
     void Shooting()
     {
+        //player wont shoot if they arent holding down trigger
         if (!isShooting)
         {
             return;
         }
 
+        //player wont shoot with an empty clip
         if(bulletsRemaining == 0)
         {
             return;
         }
 
+        //disables shooting after one trigger pull so the player needs to release and re-press shoot button
         if(fireType == FireType.semi)
         {
             if (Time.time - timeOfLastShot > timeBetweenShots)
@@ -89,7 +96,7 @@ public class baseGun : MonoBehaviour
                 SpawnBullet();
                 isShooting = false;
             }
-        }
+        }// continues to fire as long as trigger is held
         else if(fireType == FireType.fullAuto)
         {
             if (Time.time - timeOfLastShot > timeBetweenShots)
@@ -99,12 +106,26 @@ public class baseGun : MonoBehaviour
         }
     }
 
-
+    //spawns a bullet at the end of the barrel and fires it
     void SpawnBullet()
     {
         timeOfLastShot = Time.time;
         GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
-        temp.transform.forward = endOfBarrel.forward;
+
+        //adjusts the bullets trajectory so it always hits what the crosshair is looking at. This needs to be done because the player forward isnt aligned with the guns forward
+        Vector3 newForward;
+        RaycastHit hit;
+
+        if(Physics.Raycast(new Ray(playerCam.position, playerCam.forward), out hit, 50f))
+        {
+            newForward = hit.point - endOfBarrel.position;
+        }
+        else
+        {
+            newForward = playerCam.forward * 50f + playerCam.position - endOfBarrel.position;
+        }
+
+        temp.transform.forward = newForward;
         bulletsRemaining -= 1;
         if(ammoUpdate != null)
         {
