@@ -18,14 +18,17 @@ public class baseBullet : MonoBehaviour
     bool shrinkTrail = false;
     GradientColorKey[] gradientColorKeys;
     ParticleSystem ps;
+    float particleLifettime;
 
     float alpha1 = 1f;
     float alpha2 = 0.89f;
+
 
     // Start is called before the first frame update
     void Start()
     {
         ps = GetComponent<ParticleSystem>();
+        particleLifettime = ps.startLifetime;
         bulletCollider = GetComponent<Collider>();
         bulletRenderer = GetComponent<Renderer>();
         bulletLight = GetComponent<Light>();
@@ -63,15 +66,15 @@ public class baseBullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        ps.Emit(50);
+        ps.Emit(30);
         bulletLight.enabled = false;
         bulletSpeed = 0f;
         bulletCollider.enabled = false;
         bulletRenderer.enabled = false;
         trail.emitting = false;
         shrinkTrail = true;
-        
-        float timeDelay = 5f;
+
+        float timeDelay = particleLifettime;
         Destroy(transform.gameObject, timeDelay);
     }
 

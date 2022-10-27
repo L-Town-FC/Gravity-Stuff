@@ -14,6 +14,7 @@ public class baseGun : MonoBehaviour
     [SerializeField]
     protected float timeBetweenShots = 1f;
     protected float timeOfLastShot = -5f;
+    protected float recoilPerShot = 0.75f;
     [SerializeField]
     protected GameObject bullet;
 
@@ -38,7 +39,7 @@ public class baseGun : MonoBehaviour
 
     protected virtual void Start()
     {
-
+        
     }
 
     // Update is called once per frame
@@ -88,21 +89,21 @@ public class baseGun : MonoBehaviour
             return;
         }
 
+        if (Time.time - timeOfLastShot > timeBetweenShots)
+        {
+            SpawnBullet();
+            AddRecoil();
+        }
+
         //disables shooting after one trigger pull so the player needs to release and re-press shoot button
-        if(fireType == FireType.semi)
+        //leave option open for burst fire weapons
+        if (fireType == FireType.semi)
         {
-            if (Time.time - timeOfLastShot > timeBetweenShots)
-            {
-                SpawnBullet();
-                isShooting = false;
-            }
+            isShooting = false;
         }// continues to fire as long as trigger is held
-        else if(fireType == FireType.fullAuto)
+        else if (fireType == FireType.fullAuto)
         {
-            if (Time.time - timeOfLastShot > timeBetweenShots)
-            {
-                SpawnBullet();
-            }
+
         }
     }
 
@@ -133,6 +134,10 @@ public class baseGun : MonoBehaviour
         }
     }
 
+    void AddRecoil()
+    {
+        playerCam.localEulerAngles -= new Vector3(recoilPerShot, 0f, 0f);
+    }
     private void OnEnable()
     {
         playerControls.PlayerMovement.Shoot.performed += Shoot;
