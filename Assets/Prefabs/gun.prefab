@@ -97,6 +97,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240b5c34f7e001d489430fe13f6d35e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fireType: 0
+  timeBetweenShots: 1
+  bullet: {fileID: 0}
 --- !u!1 &9080549631601081450
 GameObject:
   m_ObjectHideFlags: 0

@@ -129,7 +129,7 @@ public class playerMovement : MonoBehaviour
             if ((newGravity.x == 0.71f || newGravity.x == -0.71f || newGravity.z == 0.71f || newGravity.z == -0.71f)){ //this makes sure that the player didnt hit d-pad diagonally. only up, down, left, or right
                 return;
             }
-            if(Time.time < lastGravityChangeTime + gravityChangeCooldownTime) //checks when the player last changed their gravity and blocks them from changing again until cooldown is done
+            if(Time.time < lastGravityChangeTime + gravityChangeCooldownTime || playerStateManager.currentPlayerState != playerStateManager.PlayerState._default) //checks when the player last changed their gravity and blocks them from changing again until cooldown is done
             {
                 return;
             }
@@ -283,6 +283,8 @@ public class playerMovement : MonoBehaviour
         changingGravity = true;
         playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
         disableGravity = true;
+        //playerStateManager.currentPlayerState = playerStateManager.PlayerState.flipping; //sets globals player state to flipping gravity so the player cant do other actions while flipping
+        playerStateManager.playerStatesQueue.Enqueue(playerStateManager.PlayerState.flipping);
 
         //trying to make it so player is looking at same spot after rotation as before
         //grabs the location of the point that the player is looking at. if the point is significantly far away, a point a set distance away is used instead
@@ -347,6 +349,7 @@ public class playerMovement : MonoBehaviour
             yield return null;
         }
 
+        //because quaternions make no sense this needed to be added because the player would regularly be slightly off alignment with a cardinal direction
         //if not perfectly aligned with different cardinal unit vectors the rotation doesnt complete fully. this is a workaround that checks the remaining angle and completes it
         //is barely noticable but something to look at when bored one day
         float remainingAngle = Vector3.Angle(transform.up, up);
@@ -357,6 +360,7 @@ public class playerMovement : MonoBehaviour
             yield return null;
         }
 
+        //final adujustment because quaternions are not to be trusted
         //may need to switch this to truncation as rounding to int may be too jarring
         float x = Mathf.Round(transform.localEulerAngles.x);
         float y = Mathf.Round(transform.localEulerAngles.y);
@@ -367,6 +371,9 @@ public class playerMovement : MonoBehaviour
         playerCameraScript.enabled = true;
         disableGravity = false;
         changingGravity = false;
+        //playerStateManager.currentPlayerState = playerStateManager.PlayerState._default; //sets globals player state to flipping gravity so the player cant do other actions while flipping
+        playerStateManager.playerStatesQueue.Enqueue(playerStateManager.PlayerState._default);
+
         StopCoroutine("SettingGravity");
 
         yield return null;

@@ -28,7 +28,7 @@ public class baseBullet : MonoBehaviour
     void Start()
     {
         ps = GetComponent<ParticleSystem>();
-        particleLifettime = ps.startLifetime;
+        particleLifettime = ps.main.startLifetimeMultiplier;
         bulletCollider = GetComponent<Collider>();
         bulletRenderer = GetComponent<Renderer>();
         bulletLight = GetComponent<Light>();

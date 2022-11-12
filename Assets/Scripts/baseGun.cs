@@ -14,7 +14,7 @@ public class baseGun : MonoBehaviour
     [SerializeField]
     protected float timeBetweenShots = 1f;
     protected float timeOfLastShot = -5f;
-    protected float recoilPerShot = 0.75f;
+    protected float recoilPerShot = 0.5f;
     [SerializeField]
     protected GameObject bullet;
 
@@ -77,6 +77,12 @@ public class baseGun : MonoBehaviour
     //determines when gun actually shoots
     void Shooting()
     {
+        //player shouldnt be allowed to shoot if they are performing another action
+        if(playerStateManager.currentPlayerState != playerStateManager.PlayerState._default)
+        {
+            return;
+        }
+
         //player wont shoot if they arent holding down trigger
         if (!isShooting)
         {
