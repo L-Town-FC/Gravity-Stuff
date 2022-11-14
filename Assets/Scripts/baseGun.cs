@@ -18,6 +18,8 @@ public class baseGun : MonoBehaviour
     [SerializeField]
     protected GameObject bullet;
 
+    Animator anim;
+
     private PlayerControls playerControls;
 
     Transform endOfBarrel;
@@ -31,6 +33,7 @@ public class baseGun : MonoBehaviour
     protected virtual void Awake()
     {
         playerControls = new PlayerControls();
+        anim = GetComponent<Animator>();
         //janky way of getting playerCam
         playerCam = transform.parent.parent;
         endOfBarrel = transform.GetChild(0);
@@ -45,7 +48,11 @@ public class baseGun : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        Shooting();
+        //Shooting();
+        if(bulletsRemaining <= 0)
+        {
+            anim.SetBool("isShooting", false);
+        }
         Debug.DrawRay(endOfBarrel.position, endOfBarrel.forward * 5f, Color.black);
     }
     //checks when trigger is pulled
@@ -54,64 +61,73 @@ public class baseGun : MonoBehaviour
         if (obj.performed)
         {
             isShooting = true;
+            anim.SetBool("isShooting", true);
         }
 
         if (obj.canceled)
         {
             isShooting = false;
+            anim.SetBool("isShooting", false);
         }
     }
     //checks if reload button has been pushed
     void Reload(InputAction.CallbackContext obj)
     {
-        if (obj.performed)
+        if (obj.performed && bulletsRemaining != clipSize)
         {
-            bulletsRemaining = clipSize;
-            if (ammoUpdate != null)
-            {
-                ammoUpdate(bulletsRemaining, clipSize);
-            }
+            anim.SetBool("isReloading", true);
         }
+    }
+
+    public void ReloadAnimation()
+    {
+        bulletsRemaining = clipSize;
+        if (ammoUpdate != null)
+        {
+            ammoUpdate(bulletsRemaining, clipSize);
+        }
+        anim.SetBool("isReloading", false);
+
     }
 
     //determines when gun actually shoots
-    void Shooting()
-    {
-        //player shouldnt be allowed to shoot if they are performing another action
-        if(playerStateManager.currentPlayerState != playerStateManager.PlayerState._default)
-        {
-            return;
-        }
+    //void Shooting()
+    //{
+    //    //player shouldnt be allowed to shoot if they are performing another action
+    //    if(playerStateManager.currentPlayerState != playerStateManager.PlayerState._default)
+    //    {
+    //        return;
+    //    }
 
-        //player wont shoot if they arent holding down trigger
-        if (!isShooting)
-        {
-            return;
-        }
+    //    //player wont shoot if they arent holding down trigger
+    //    if (!isShooting)
+    //    {
+    //        return;
+    //    }
 
-        //player wont shoot with an empty clip
-        if(bulletsRemaining == 0)
-        {
-            return;
-        }
+    //    //player wont shoot with an empty clip
+    //    if(bulletsRemaining == 0)
+    //    {
+    //        return;
+    //    }
 
-        if (Time.time - timeOfLastShot > timeBetweenShots)
-        {
-            SpawnBullet();
-            AddRecoil();
-        }
+    //    if (Time.time - timeOfLastShot > timeBetweenShots)
+    //    {
+    //        SpawnBullet();
+    //        AddRecoil();
+    //    }
 
-        //disables shooting after one trigger pull so the player needs to release and re-press shoot button
-        //leave option open for burst fire weapons
-        if (fireType == FireType.semi)
-        {
-            isShooting = false;
-        }// continues to fire as long as trigger is held
-        else if (fireType == FireType.fullAuto)
-        {
+    //    //disables shooting after one trigger pull so the player needs to release and re-press shoot button
+    //    //leave option open for burst fire weapons
+    //    if (fireType == FireType.semi)
+    //    {
+    //        isShooting = false;
+    //    }// continues to fire as long as trigger is held
+    //    else if (fireType == FireType.fullAuto)
+    //    {
 
-        }
-    }
+    //    }
+    //}
 
     //spawns a bullet at the end of the barrel and fires it
     void SpawnBullet()

@@ -1062,7 +1062,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh27784
+  m_Name: pb_Mesh31082
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1755,6 +1755,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886323298}
   m_CullTransparentMesh: 1
+--- !u!1 &888371400 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 880663613934106319, guid: f5e8f2f63613ca94b8015deed1d91116,
+    type: 3}
+  m_PrefabInstance: {fileID: 43688934}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &965662293
 GameObject:
   m_ObjectHideFlags: 0
@@ -2134,6 +2140,26 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 43688934}
   m_PrefabAsset: {fileID: 0}
+--- !u!95 &1934036584
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 888371400}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4190bd3c2dd8f6943bcfd9ca0ad3399d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &2084556575
 GameObject:
   m_ObjectHideFlags: 0
@@ -2265,6 +2291,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disableGravity: 0
+  changingGravity: 0
   gravityChangeSpeed: 80
 --- !u!114 &2084556582
 MonoBehaviour:

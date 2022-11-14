@@ -24,9 +24,11 @@ public class playerMovement : MonoBehaviour
     public static float gravityChangeCooldownTime = 0.5f;
     float lastGravityChangeTime = 0f;
     float acceleration = -0.75f; //acceleration due to gravity
-    public bool disableGravity = false;
-    bool changingGravity = false;
-    public float gravityChangeSpeed = 10f; //rate at which players gravity is changed. higher number means faster
+    [SerializeField]
+    bool disableGravity = false; //for testing only. disable players gravity
+    public bool changingGravity = false;
+    [SerializeField]
+    float gravityChangeSpeed = 10f; //rate at which players gravity is changed. higher number means faster
     float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     float jumpForce = 20f; //velocity magnitude that is set when player jumps
 
@@ -111,6 +113,7 @@ public class playerMovement : MonoBehaviour
         //need to disable incase object is destroyed and game tries to call them after
         DisablingPlayerControls();
     }
+
 
     private void DoJump(InputAction.CallbackContext obj)
     {
