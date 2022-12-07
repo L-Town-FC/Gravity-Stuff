@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 public class baseGun : MonoBehaviour
 {
+    //TODO: Make it so shooting is disabled during other actions
     protected int clipSize = 30;
     protected int bulletsRemaining;
     protected enum FireType {semi, fullAuto}
