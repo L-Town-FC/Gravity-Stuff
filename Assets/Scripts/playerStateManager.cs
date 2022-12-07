@@ -36,7 +36,7 @@ public class playerStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        print(currentPlayerState);
+        //print(currentPlayerState);
     }
 
     private void LateUpdate()

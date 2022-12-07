@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class baseBullet : MonoBehaviour
 {
@@ -17,34 +18,37 @@ public class baseBullet : MonoBehaviour
     float startTime;
     bool shrinkTrail = false;
     GradientColorKey[] gradientColorKeys;
-    ParticleSystem ps;
-    float particleLifettime;
 
     float alpha1 = 1f;
     float alpha2 = 0.89f;
 
+    Vector3 collisionPoint;
+
+    VisualEffect shrapnelEffect;
 
     // Start is called before the first frame update
     void Start()
     {
-        ps = GetComponent<ParticleSystem>();
-        particleLifettime = ps.main.startLifetimeMultiplier;
+
         bulletCollider = GetComponent<Collider>();
         bulletRenderer = GetComponent<Renderer>();
         bulletLight = GetComponent<Light>();
         trail = GetComponent<TrailRenderer>();
+        shrapnelEffect = GetComponent<VisualEffect>();
         transform.localScale *= bulletSize;
         startTime = Time.time;
         gradientColorKeys = trail.colorGradient.colorKeys;
 
-        var emission = ps.emission; // Stores the module in a local variable
-        emission.enabled = false; // Applies the new value directly to the Particle System
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.DrawRay(transform.position, transform.forward * 3f, Color.red);
+
+        //Debug.DrawRay(transform.position, transform.forward * 0.1f, Color.red);
+        RaycastHit hit;
+        Physics.Raycast(transform.position, transform.forward, out hit);
+        collisionPoint = hit.point;
         if(Time.time - startTime > bulletLife)
         {
             Destroy(transform.gameObject);
@@ -66,7 +70,8 @@ public class baseBullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        ps.Emit(30);
+        transform.position = collisionPoint;
+        shrapnelEffect.Play();
         bulletLight.enabled = false;
         bulletSpeed = 0f;
         bulletCollider.enabled = false;
@@ -74,8 +79,7 @@ public class baseBullet : MonoBehaviour
         trail.emitting = false;
         shrinkTrail = true;
 
-        float timeDelay = particleLifettime;
-        Destroy(transform.gameObject, timeDelay);
+        Destroy(transform.gameObject, 1f);
     }
 
     void ShrinkTrail()
