@@ -21,6 +21,12 @@ public class baseGun : MonoBehaviour
 
     Animator anim;
 
+    AudioSource audioSource;
+    [SerializeField]
+    AudioClip reloadSound;
+    [SerializeField]
+    AudioClip shootSound;
+
     private PlayerControls playerControls;
 
     Transform endOfBarrel;
@@ -35,6 +41,8 @@ public class baseGun : MonoBehaviour
     {
         playerControls = new PlayerControls();
         anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+
         //janky way of getting playerCam
         playerCam = transform.parent.parent;
         endOfBarrel = transform.GetChild(0);
@@ -49,6 +57,16 @@ public class baseGun : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
+        //simplest way i could think of stopping shooting while flipping gravity. will probably need to be changed later
+        if(playerStateManager.currentPlayerState == playerStateManager.PlayerState.flipping)
+        {
+            anim.enabled = false;
+        }
+        else
+        {
+            anim.enabled = true;
+        }
+
         //Shooting();
         if(bulletsRemaining <= 0)
         {
@@ -69,6 +87,7 @@ public class baseGun : MonoBehaviour
         {
             isShooting = false;
             anim.SetBool("isShooting", false);
+            audioSource.Stop();
         }
     }
     //checks if reload button has been pushed
@@ -91,44 +110,12 @@ public class baseGun : MonoBehaviour
 
     }
 
-    //determines when gun actually shoots
-    //void Shooting()
-    //{
-    //    //player shouldnt be allowed to shoot if they are performing another action
-    //    if(playerStateManager.currentPlayerState != playerStateManager.PlayerState._default)
-    //    {
-    //        return;
-    //    }
-
-    //    //player wont shoot if they arent holding down trigger
-    //    if (!isShooting)
-    //    {
-    //        return;
-    //    }
-
-    //    //player wont shoot with an empty clip
-    //    if(bulletsRemaining == 0)
-    //    {
-    //        return;
-    //    }
-
-    //    if (Time.time - timeOfLastShot > timeBetweenShots)
-    //    {
-    //        SpawnBullet();
-    //        AddRecoil();
-    //    }
-
-    //    //disables shooting after one trigger pull so the player needs to release and re-press shoot button
-    //    //leave option open for burst fire weapons
-    //    if (fireType == FireType.semi)
-    //    {
-    //        isShooting = false;
-    //    }// continues to fire as long as trigger is held
-    //    else if (fireType == FireType.fullAuto)
-    //    {
-
-    //    }
-    //}
+    void ReloadSound()
+    {
+        audioSource.Stop();
+        audioSource.clip = reloadSound;
+        audioSource.Play();
+    }
 
     //spawns a bullet at the end of the barrel and fires it
     void SpawnBullet()
@@ -160,6 +147,13 @@ public class baseGun : MonoBehaviour
     void AddRecoil()
     {
         playerCam.localEulerAngles -= new Vector3(recoilPerShot, 0f, 0f);
+    }
+
+    void ShootingSound()
+    {
+        //https://sfxr.me/ good site
+        audioSource.clip = shootSound;
+        audioSource.Play();
     }
     private void OnEnable()
     {
