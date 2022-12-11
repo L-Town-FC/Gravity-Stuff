@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class playerUI : MonoBehaviour
@@ -9,13 +10,9 @@ public class playerUI : MonoBehaviour
     GameObject player;
 
     [SerializeField]
-    RectTransform gravityCooldown;
-    Rect gravityCooldownRect;
+    Slider gravityCoolDownSlider;
     float gravityChangeCooldownTime;
     float gravityChangeTime = 0f;
-    float barMaxWidth;
-    [Range(0, 1)]
-    public static float barWidth;
 
     [SerializeField]
     TMP_Text ammoText;
@@ -37,8 +34,6 @@ public class playerUI : MonoBehaviour
     private void Awake()
     {
         gravityChangeCooldownTime = playerMovement.gravityChangeCooldownTime;
-        gravityCooldownRect = gravityCooldown.rect;
-        barMaxWidth = gravityCooldownRect.width;
     }
 
     // Start is called before the first frame update
@@ -50,8 +45,7 @@ public class playerUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        barWidth = Mathf.InverseLerp(gravityChangeTime, gravityChangeTime + gravityChangeCooldownTime, Time.time);
-        gravityCooldown.sizeDelta = new Vector2(barWidth * barMaxWidth, gravityCooldownRect.height);
+        gravityCoolDownSlider.value = Mathf.InverseLerp(gravityChangeTime, gravityChangeTime + gravityChangeCooldownTime, Time.time);
     }
 
     void UpdateGravityChangeTime(float currentTime)

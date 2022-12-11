@@ -87,7 +87,6 @@ public class baseGun : MonoBehaviour
         {
             isShooting = false;
             anim.SetBool("isShooting", false);
-            audioSource.Stop();
         }
     }
     //checks if reload button has been pushed
@@ -113,6 +112,7 @@ public class baseGun : MonoBehaviour
     void ReloadSound()
     {
         audioSource.Stop();
+        audioSource.pitch = 2f;
         audioSource.clip = reloadSound;
         audioSource.Play();
     }
@@ -153,6 +153,7 @@ public class baseGun : MonoBehaviour
     {
         //https://sfxr.me/ good site
         audioSource.clip = shootSound;
+        audioSource.pitch = 0.25f;
         audioSource.Play();
     }
     private void OnEnable()
