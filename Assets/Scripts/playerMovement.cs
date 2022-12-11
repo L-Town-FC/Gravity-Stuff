@@ -21,7 +21,7 @@ public class playerMovement : MonoBehaviour
 
     //gravity variables
     public static Vector3 up;
-    public static float gravityChangeCooldownTime = 0.5f;
+    public static float gravityChangeCooldownTime = 0.75f;
     float lastGravityChangeTime = 0f;
     float acceleration = -0.75f; //acceleration due to gravity
     [SerializeField]

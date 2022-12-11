@@ -11,6 +11,9 @@ public class playerUI : MonoBehaviour
 
     [SerializeField]
     Slider gravityCoolDownSlider;
+    [SerializeField]
+    Image gravityCooldownFillColor;
+    bool gravityCooldownFinished;
     float gravityChangeCooldownTime;
     float gravityChangeTime = 0f;
 
@@ -44,6 +47,11 @@ public class playerUI : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        UpdateCooldowns();
+    }
+
+    void UpdateCooldowns()
     {
         gravityCoolDownSlider.value = Mathf.InverseLerp(gravityChangeTime, gravityChangeTime + gravityChangeCooldownTime, Time.time);
     }

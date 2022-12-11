@@ -12,13 +12,13 @@ GameObject:
   - component: {fileID: 1971025809060578234}
   - component: {fileID: 3503950579510815066}
   - component: {fileID: -202313005067155633}
-  - component: {fileID: -3500558276954159934}
   - component: {fileID: 8388137597249944866}
   - component: {fileID: 7022217485134803640}
   - component: {fileID: -7888307559709150059}
   - component: {fileID: -7164697055992315224}
   - component: {fileID: 8422970536481788420}
   - component: {fileID: 7106749074202942217}
+  - component: {fileID: 8031912143475769332}
   m_Layer: 0
   m_Name: bullet
   m_TagString: Untagged
@@ -105,22 +105,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSpeed: 40
   bulletSize: 1
---- !u!54 &-3500558276954159934
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9158197951878752988}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!65 &8388137597249944866
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -146,7 +130,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 0.30647027, g: 0.42318735, b: 0.6698113, a: 1}
-  m_Intensity: 1
+  m_Intensity: 10
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -392,3 +376,19 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!54 &8031912143475769332
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9158197951878752988}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
