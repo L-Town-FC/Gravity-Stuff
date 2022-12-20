@@ -8,16 +8,28 @@ public class PlayerIdleState : PlayerBaseState
     public PlayerIdleState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) 
     :base (currentContext, playerStateFactory){ }
     float jumpForce = 20f;
+    float gravityChangeCooldownTime = 0.75f;
+    bool switchGravity = false;
 
     //rate at which player can change direction. It takes more time to change direction in the air than on the ground
     float maxGroundDirChange = 0.25f;
     float maxAirDirChange = 0.1f;
+
+    public delegate void GravityChange(float currentTime);
+    public static event GravityChange gravityChanged;
+
     public override void EnterState()
     {
         Debug.Log("Idle");
     }
     public override void UpdateState()
     {
+        if (ctx._checkGravitySwitch)
+        {
+            ChangeGravityCheck(ctx._newGravity);
+            ctx._checkGravitySwitch = false;
+        }
+
         CheckSwitchState();
     }
 
@@ -61,7 +73,11 @@ public class PlayerIdleState : PlayerBaseState
     }
     public override void CheckSwitchState()
     {
-       
+        if(switchGravity)
+        {
+            SwitchState(factory.SwitchGravity());
+            switchGravity = false;
+        }
     }
 
     static float Gravity(float verticalVelocity, float acceleration) //simple way to add gravity to player calculations
@@ -72,6 +88,73 @@ public class PlayerIdleState : PlayerBaseState
             verticalVelocity = -30f;
         }
         return verticalVelocity;
+    }
+
+    void ChangeGravityCheck(Vector2 obj)
+    {
+        Vector3 newGravity = new Vector3(obj.x, 0f, obj.y); //grabbing inputs
+
+        if ((newGravity.x == 0.71f || newGravity.x == -0.71f || newGravity.z == 0.71f || newGravity.z == -0.71f))
+        { //this makes sure that the player didnt hit d-pad diagonally. only up, down, left, or right
+            return;
+        }
+        if (Time.time < ctx._lastGravityChangeTime + gravityChangeCooldownTime || playerStateManager.currentPlayerState != playerStateManager.PlayerState._default) //checks when the player last changed their gravity and blocks them from changing again until cooldown is done
+        {
+            return;
+        }
+
+        //checks the direction the player pressed on the d-pad and compares it world vectors and then sets the players up values equal to world vector that is closest to the input direction
+        newGravity = ctx.transform.TransformDirection(newGravity);
+
+        Vector3 newUp = new Vector3(newGravity.x, 0f, 0f);
+        float max = Mathf.Abs(newGravity.x);
+
+        if (Mathf.Abs(newGravity.y) >= max)
+        {
+            max = Mathf.Abs(newGravity.y);
+            newUp = new Vector3(0f, newGravity.y, 0f);
+        }
+
+        if (Mathf.Abs(newGravity.z) >= max)
+        {
+            newUp = new Vector3(0f, 0f, newGravity.z);
+        }
+
+        ctx._up = -newUp;
+
+        ctx._lastGravityChangeTime = Time.time;
+
+
+        Vector3 rotationAxis = ctx.transform.TransformDirection(new Vector3(-obj.y, 0f, obj.x));
+        Vector3 finalRotationAxis = Vector3.zero;
+
+        max = -0.01f;
+        if (Mathf.Abs(rotationAxis.x) >= max)
+        {
+            max = Mathf.Abs(rotationAxis.x);
+            finalRotationAxis = new Vector3(Mathf.Sign(rotationAxis.x), 0f, 0f);
+        }
+
+        if (Mathf.Abs(rotationAxis.y) >= max)
+        {
+            max = Mathf.Abs(rotationAxis.y);
+            finalRotationAxis = new Vector3(0f, rotationAxis.y, 0f);
+        }
+
+        if (Mathf.Abs(rotationAxis.z) >= max)
+        {
+            finalRotationAxis = new Vector3(0f, 0f, rotationAxis.z);
+        }
+
+        if (gravityChanged != null) //calling event to alert other scripts that the gravity has successfully changed
+        {
+            gravityChanged(ctx._lastGravityChangeTime);
+        }
+
+        ctx._rotationAxis = finalRotationAxis;
+
+        switchGravity = true;
+        //StartCoroutine("SettingGravity", finalRotationAxis);
     }
 
 }

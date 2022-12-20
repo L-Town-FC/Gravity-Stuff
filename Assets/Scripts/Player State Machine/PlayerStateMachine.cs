@@ -25,7 +25,18 @@ public class PlayerStateMachine : MonoBehaviour
     public float _accelerationDueToGravity { get { return acceleration;  } set { acceleration = value; } }
     public Vector3 _currentMoveDir { get { return currentMoveDir; } set { currentMoveDir = value; } }
 
+    public bool _checkGravitySwitch { get { return checkGravitySwitch; } set { checkGravitySwitch = value; } }
+    public float _lastGravityChangeTime { get { return lastGravityChangeTime; } set { lastGravityChangeTime = value; } }
     public float _dirChange { get { return dirChange; } set { dirChange = value; } }
+
+    public Vector3 _newGravity { get { return newGravity; } set { newGravity = value; } }
+
+    public bool _disableGravity { get { return disableGravity; } set { disableGravity = value; } }
+    
+    public Transform _playerCam { get { return playerCam; } set { playerCam = value; } }
+    public playerCamera _playerCameraScript {  get { return playerCameraScript; } set { playerCameraScript = value; } }
+    public Vector3 _rotationAxis { get { return rotationAxis; } set { rotationAxis = value; } }
+    public Vector3 _up { get { return up; } set { up = value; } }
 
     //Action maps and inputs
     private PlayerControls playerControls;
@@ -43,6 +54,11 @@ public class PlayerStateMachine : MonoBehaviour
     float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     //float jumpForce = 20f; //velocity magnitude that is set when player jumps
     bool isJumpPressed = false;
+    bool checkGravitySwitch = false;
+    float lastGravityChangeTime = 0f;
+    Vector3 up;
+    Vector3 newGravity;
+    Vector3 rotationAxis;
 
     //checking if grounded variables
     Vector3[] localLowerBounds; //holds points on player that are raycast from to check if grounded
@@ -57,6 +73,9 @@ public class PlayerStateMachine : MonoBehaviour
     //rate at which player can change direction. It takes more time to change direction in the air than on the ground
     float dirChange = 0.25f;
 
+    Transform playerCam;
+    playerCamera playerCameraScript;
+
     public delegate void GravityChange(float currentTime);
     public static event GravityChange gravityChanged;
 
@@ -65,6 +84,9 @@ public class PlayerStateMachine : MonoBehaviour
         states = new PlayerStateFactory(this);
         currentState = states.Idle();
         currentState.EnterState();
+        up = transform.up;
+        playerCam = transform.GetChild(0);
+        playerCameraScript = GetComponent<playerCamera>();
         SettingInitialPlayerConditions();
     }
 
@@ -106,6 +128,15 @@ public class PlayerStateMachine : MonoBehaviour
         {
             isJumpPressed = true;
         }
+    }
+    private void ChangeGravity(InputAction.CallbackContext obj)
+    {
+        if (obj.performed)
+        {
+            checkGravitySwitch = true;
+            newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
+        }
+
     }
 
     static Vector3[] GetLowerBounds(Vector3 center, float radius)
@@ -158,6 +189,9 @@ public class PlayerStateMachine : MonoBehaviour
     {
         movement = playerControls.PlayerMovement.Walking;
         movement.Enable();
+
+        playerControls.PlayerMovement.GravityChange.performed += ChangeGravity;
+        playerControls.PlayerMovement.GravityChange.Enable();
 
         playerControls.PlayerMovement.Jump.performed += DoJump;
         playerControls.PlayerMovement.Jump.Enable();
