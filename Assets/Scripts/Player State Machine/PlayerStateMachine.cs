@@ -6,10 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerStateMachine : MonoBehaviour
 {
-    //removed shit so I can actually figure out how this state machine works
-
-    //TODO: Move changingGravity into player action manager so everything can access it
-    //REWATCH FROM 19:20 https://www.youtube.com/watch?v=kV06GiJgFhc&t=656s
+    //TODO: Organize variables so they arent so ugly to look at/so they make structural sense
 
     //state variables
     PlayerBaseState currentState;
@@ -135,6 +132,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             checkGravitySwitch = true;
             newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
+            
         }
 
     }

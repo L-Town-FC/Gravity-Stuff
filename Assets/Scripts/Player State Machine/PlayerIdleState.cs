@@ -1,15 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerIdleState : PlayerBaseState
 {
     public PlayerIdleState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) 
     :base (currentContext, playerStateFactory){ }
-    float jumpForce = 20f;
-    float gravityChangeCooldownTime = 0.75f;
-    bool switchGravity = false;
+    float jumpForce = 20f; //arbitrary number selected for velocity applied to player when jumping
+
+    //MAY NEED TO MOVE THIS VALUE INTO PLAYER STATE MACHINE SCRIPT SO UI CAN ACCESS IT
+    float gravityChangeCooldownTime = 1.25f; //amount of time between gravity flips. should be larger than the time it takes to flip gravity. 
+    bool switchGravity = false; //set to true if conditions are met to flip players gravity
 
     //rate at which player can change direction. It takes more time to change direction in the air than on the ground
     float maxGroundDirChange = 0.25f;
@@ -20,7 +21,6 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void EnterState()
     {
-        Debug.Log("Idle");
     }
     public override void UpdateState()
     {
@@ -90,9 +90,10 @@ public class PlayerIdleState : PlayerBaseState
         return verticalVelocity;
     }
 
-    void ChangeGravityCheck(Vector2 obj)
+    void ChangeGravityCheck(Vector3 obj)
     {
-        Vector3 newGravity = new Vector3(obj.x, 0f, obj.y); //grabbing inputs
+        //Vector3 newGravity = new Vector3(obj.x, 0f, obj.z); //grabbing inputs
+        Vector3 newGravity = ctx._newGravity;
 
         if ((newGravity.x == 0.71f || newGravity.x == -0.71f || newGravity.z == 0.71f || newGravity.z == -0.71f))
         { //this makes sure that the player didnt hit d-pad diagonally. only up, down, left, or right
@@ -125,9 +126,10 @@ public class PlayerIdleState : PlayerBaseState
         ctx._lastGravityChangeTime = Time.time;
 
 
-        Vector3 rotationAxis = ctx.transform.TransformDirection(new Vector3(-obj.y, 0f, obj.x));
+        Vector3 rotationAxis = ctx.transform.TransformDirection(new Vector3(-obj.z, 0f, obj.x));
         Vector3 finalRotationAxis = Vector3.zero;
 
+        //makes sure final rotation angle is perfectly lined up with one of the 8 cardinal directions
         max = -0.01f;
         if (Mathf.Abs(rotationAxis.x) >= max)
         {
@@ -154,7 +156,6 @@ public class PlayerIdleState : PlayerBaseState
         ctx._rotationAxis = finalRotationAxis;
 
         switchGravity = true;
-        //StartCoroutine("SettingGravity", finalRotationAxis);
     }
 
 }
