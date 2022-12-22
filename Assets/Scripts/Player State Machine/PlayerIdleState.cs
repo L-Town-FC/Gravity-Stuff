@@ -9,15 +9,11 @@ public class PlayerIdleState : PlayerBaseState
     float jumpForce = 20f; //arbitrary number selected for velocity applied to player when jumping
 
     //MAY NEED TO MOVE THIS VALUE INTO PLAYER STATE MACHINE SCRIPT SO UI CAN ACCESS IT
-    float gravityChangeCooldownTime = 1.25f; //amount of time between gravity flips. should be larger than the time it takes to flip gravity. 
     bool switchGravity = false; //set to true if conditions are met to flip players gravity
 
     //rate at which player can change direction. It takes more time to change direction in the air than on the ground
     float maxGroundDirChange = 0.25f;
     float maxAirDirChange = 0.1f;
-
-    public delegate void GravityChange(float currentTime);
-    public static event GravityChange gravityChanged;
 
     public override void EnterState()
     {
@@ -99,7 +95,7 @@ public class PlayerIdleState : PlayerBaseState
         { //this makes sure that the player didnt hit d-pad diagonally. only up, down, left, or right
             return;
         }
-        if (Time.time < ctx._lastGravityChangeTime + gravityChangeCooldownTime || playerStateManager.currentPlayerState != playerStateManager.PlayerState._default) //checks when the player last changed their gravity and blocks them from changing again until cooldown is done
+        if (Time.time < ctx._lastGravityChangeTime + ctx._gravityChangeCooldownTime || playerStateManager.currentPlayerState != playerStateManager.PlayerState._default) //checks when the player last changed their gravity and blocks them from changing again until cooldown is done
         {
             return;
         }
@@ -148,10 +144,7 @@ public class PlayerIdleState : PlayerBaseState
             finalRotationAxis = new Vector3(0f, 0f, rotationAxis.z);
         }
 
-        if (gravityChanged != null) //calling event to alert other scripts that the gravity has successfully changed
-        {
-            gravityChanged(ctx._lastGravityChangeTime);
-        }
+        ctx._gravityChange = true;
 
         ctx._rotationAxis = finalRotationAxis;
 

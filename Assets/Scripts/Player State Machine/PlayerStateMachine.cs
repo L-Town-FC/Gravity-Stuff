@@ -6,72 +6,80 @@ using UnityEngine.InputSystem;
 
 public class PlayerStateMachine : MonoBehaviour
 {
-    //TODO: Organize variables so they arent so ugly to look at/so they make structural sense
-
     //state variables
     PlayerBaseState currentState;
     PlayerStateFactory states;
 
-    //getters and setters
-    public PlayerBaseState CurrentState { get { return currentState;  } set { currentState = value; } }
-    public float _verticalVelocity { get { return verticalVelocity; } set { verticalVelocity = value; } }
-    public bool _isGrounded { get { return isGrounded; } set { isGrounded = value; } }
-    public bool _isJumpPressed { get { return isJumpPressed; } set { isJumpPressed = value; } }
+    #region Getters and Setters
+    //Components
+    public PlayerBaseState CurrentState { get { return currentState; } set { currentState = value; } }
+    public Transform _playerCam { get { return playerCam; } set { playerCam = value; } }
+    public playerCamera _playerCameraScript { get { return playerCameraScript; } set { playerCameraScript = value; } }
+
+    //Movement
     public Vector3 _movementInput { get { return movementInput; } set { movementInput = value; } }
     public Vector3 _currentMoveInput { get { return currentMoveInput; } set { currentMoveInput = value; } }
-    public float _accelerationDueToGravity { get { return acceleration;  } set { acceleration = value; } }
     public Vector3 _currentMoveDir { get { return currentMoveDir; } set { currentMoveDir = value; } }
-
-    public bool _checkGravitySwitch { get { return checkGravitySwitch; } set { checkGravitySwitch = value; } }
-    public float _lastGravityChangeTime { get { return lastGravityChangeTime; } set { lastGravityChangeTime = value; } }
     public float _dirChange { get { return dirChange; } set { dirChange = value; } }
+    public bool _isJumpPressed { get { return isJumpPressed; } set { isJumpPressed = value; } }
+    public bool _isGrounded { get { return isGrounded; } set { isGrounded = value; } }
+    //
 
-    public Vector3 _newGravity { get { return newGravity; } set { newGravity = value; } }
-
+    //Gravity
     public bool _disableGravity { get { return disableGravity; } set { disableGravity = value; } }
-    
-    public Transform _playerCam { get { return playerCam; } set { playerCam = value; } }
-    public playerCamera _playerCameraScript {  get { return playerCameraScript; } set { playerCameraScript = value; } }
+    public bool _gravityChange { get { return gravityChange; } set { gravityChange = value; } }
+    public bool _checkGravitySwitch { get { return checkGravitySwitch; } set { checkGravitySwitch = value; } }
+    public float _verticalVelocity { get { return verticalVelocity; } set { verticalVelocity = value; } }
+    public float _accelerationDueToGravity { get { return acceleration; } set { acceleration = value; } }
+    public float _gravityChangeCooldownTime { get { return gravityChangeCooldownTime; } }
+    public float _lastGravityChangeTime { get { return lastGravityChangeTime; } set { lastGravityChangeTime = value; } }
+    public Vector3 _newGravity { get { return newGravity; } set { newGravity = value; } }
     public Vector3 _rotationAxis { get { return rotationAxis; } set { rotationAxis = value; } }
     public Vector3 _up { get { return up; } set { up = value; } }
+    #endregion
 
+    #region Action Maps and Inputs
     //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
     Vector3 movementInput = Vector3.zero; //holds players inputs
+    #endregion
 
-    //player components
+    #region Player Componenets
     CapsuleCollider capsuleCollider;
     Rigidbody rb;
+    Transform playerCam;
+    playerCamera playerCameraScript;
+    #endregion
 
-    //gravity variables
-    float acceleration = -0.75f; //acceleration due to gravity
+    #region Gravity Variables
     [SerializeField]
     bool disableGravity = false; //for testing only. disable players gravity
-    float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
-    //float jumpForce = 20f; //velocity magnitude that is set when player jumps
+    bool gravityChange = false;
     bool isJumpPressed = false;
     bool checkGravitySwitch = false;
+    float acceleration = -0.75f; //acceleration due to gravity
+    float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
+    float gravityChangeCooldownTime = 1.25f;
     float lastGravityChangeTime = 0f;
     Vector3 up;
     Vector3 newGravity;
     Vector3 rotationAxis;
+    #endregion
 
+    #region Ground Variables
     //checking if grounded variables
     Vector3[] localLowerBounds; //holds points on player that are raycast from to check if grounded
     bool isGrounded = false;
+    #endregion
 
-    //movement variables
+    #region Movement Variables
     float moveSpeed = 7f; //speed at which players moves
+    float dirChange = 0.25f; //rate at which player can change direction. It takes more time to change direction in the air than on the ground
     Vector3 currentMoveDir = Vector3.zero;
     Vector3 currentMoveInput = Vector3.zero;
     Vector3 currentCombinedMoveDir = Vector3.zero;
-
-    //rate at which player can change direction. It takes more time to change direction in the air than on the ground
-    float dirChange = 0.25f;
-
-    Transform playerCam;
-    playerCamera playerCameraScript;
+    #endregion
 
     public delegate void GravityChange(float currentTime);
     public static event GravityChange gravityChanged;
@@ -97,6 +105,11 @@ public class PlayerStateMachine : MonoBehaviour
     {
         GettingPlayerInputs();
         currentState.UpdateState();
+        if(gravityChange)
+        {
+            gravityChanged(Time.time);
+            gravityChange = false;
+        }
     }
 
     //apply inputs to components in fixed update
@@ -109,7 +122,6 @@ public class PlayerStateMachine : MonoBehaviour
         currentCombinedMoveDir = transform.up * _verticalVelocity + transform.TransformDirection(_currentMoveDir) * moveSpeed;
 
         rb.MovePosition(rb.position + currentCombinedMoveDir * Time.fixedDeltaTime);
-
     }
 
     private void OnDisable()
@@ -132,7 +144,6 @@ public class PlayerStateMachine : MonoBehaviour
         {
             checkGravitySwitch = true;
             newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
-            
         }
 
     }
