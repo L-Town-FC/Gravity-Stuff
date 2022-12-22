@@ -278,6 +278,7 @@ GameObject:
   m_Component:
   - component: {fileID: 193066028}
   - component: {fileID: 193066029}
+  - component: {fileID: 193066030}
   m_Layer: 5
   m_Name: GravityCoolDown
   m_TagString: Untagged
@@ -359,6 +360,20 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &193066030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193066027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02528476de2e7724db015bf5a6528b3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 2084556575}
+  cooldownSlider: {fileID: 193066029}
 --- !u!1 &231912147
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,8 +703,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 2084556575}
-  gravityCoolDownSlider: {fileID: 193066029}
-  gravityCooldownFillColor: {fileID: 957540068}
   ammoText: {fileID: 231912148}
   currentGun: {fileID: 0}
 --- !u!1 &382089920
