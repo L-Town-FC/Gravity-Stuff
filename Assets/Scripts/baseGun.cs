@@ -28,6 +28,7 @@ public class baseGun : MonoBehaviour
     AudioClip shootSound;
 
     private PlayerControls playerControls;
+    PlayerStateMachine playerStateMachine;
 
     Transform endOfBarrel;
     Transform playerCam;
@@ -45,6 +46,10 @@ public class baseGun : MonoBehaviour
 
         //janky way of getting playerCam
         playerCam = transform.parent.parent;
+
+        //janky way of getting playerState machine
+        playerStateMachine = playerCam.parent.GetComponent<PlayerStateMachine>();
+
         endOfBarrel = transform.GetChild(0);
         bulletsRemaining = clipSize;
     }
@@ -58,13 +63,13 @@ public class baseGun : MonoBehaviour
     protected virtual void Update()
     {
         //simplest way i could think of stopping shooting while flipping gravity. will probably need to be changed later
-        if(playerStateManager.currentPlayerState == playerStateManager.PlayerState.flipping)
+        if(playerStateMachine._currentState.ToString() != playerStateMachine._states.SwitchGravity().ToString())
         {
-            anim.enabled = false;
+            anim.enabled = true;
         }
         else
         {
-            anim.enabled = true;
+            anim.enabled = false;
         }
 
         //Shooting();

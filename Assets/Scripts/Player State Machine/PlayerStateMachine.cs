@@ -12,7 +12,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     #region Getters and Setters
     //Components
-    public PlayerBaseState CurrentState { get { return currentState; } set { currentState = value; } }
+    public PlayerBaseState _currentState { get { return currentState; } set { currentState = value; } }
+    public PlayerStateFactory _states { get { return states; } }
     public Transform _playerCam { get { return playerCam; } set { playerCam = value; } }
     public playerCamera _playerCameraScript { get { return playerCameraScript; } set { playerCameraScript = value; } }
 

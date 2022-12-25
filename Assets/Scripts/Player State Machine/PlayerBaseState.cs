@@ -28,7 +28,7 @@ public abstract class PlayerBaseState
         //new state enters state
         newState.EnterState();
 
-        ctx.CurrentState = newState;
+        ctx._currentState = newState;
     }
 
     protected void SetSuperState() { }
