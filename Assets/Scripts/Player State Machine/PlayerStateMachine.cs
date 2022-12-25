@@ -23,6 +23,7 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector3 _currentMoveDir { get { return currentMoveDir; } set { currentMoveDir = value; } }
     public float _dirChange { get { return dirChange; } set { dirChange = value; } }
     public bool _isJumpPressed { get { return isJumpPressed; } set { isJumpPressed = value; } }
+    public bool _isDashPressed { get { return isDashPressed; } set { isDashPressed = value; } }
     public bool _isGrounded { get { return isGrounded; } set { isGrounded = value; } }
     //
 
@@ -44,6 +45,8 @@ public class PlayerStateMachine : MonoBehaviour
     private PlayerControls playerControls;
     private InputAction movement;
     Vector3 movementInput = Vector3.zero; //holds players inputs
+    bool isJumpPressed = false;
+    bool isDashPressed = false;
     #endregion
 
     #region Player Componenets
@@ -57,7 +60,6 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField]
     bool disableGravity = false; //for testing only. disable players gravity
     bool gravityChange = false;
-    bool isJumpPressed = false;
     bool checkGravitySwitch = false;
     float acceleration = -0.75f; //acceleration due to gravity
     float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
@@ -139,6 +141,11 @@ public class PlayerStateMachine : MonoBehaviour
             isJumpPressed = true;
         }
     }
+
+    private void Dash(InputAction.CallbackContext obj)
+    {
+        isDashPressed = true;
+    }
     private void ChangeGravity(InputAction.CallbackContext obj)
     {
         if (obj.performed)
@@ -205,6 +212,9 @@ public class PlayerStateMachine : MonoBehaviour
 
         playerControls.PlayerMovement.Jump.performed += DoJump;
         playerControls.PlayerMovement.Jump.Enable();
+
+        playerControls.PlayerMovement.Dash.performed += Dash;
+        playerControls.PlayerMovement.Dash.Enable();
     }
 
     void GettingPlayerInputs()
@@ -219,5 +229,6 @@ public class PlayerStateMachine : MonoBehaviour
         movement.Disable();
         playerControls.PlayerMovement.Jump.Disable();
         playerControls.PlayerMovement.GravityChange.Disable();
+        playerControls.PlayerMovement.Dash.Disable();
     }
 }

@@ -73,7 +73,12 @@ public class PlayerIdleState : PlayerBaseState
         {
             SwitchState(factory.SwitchGravity());
             switchGravity = false;
+        }else if (ctx._isDashPressed)
+        {
+            SwitchState(factory.Dash());
+            ctx._isDashPressed = false;
         }
+
     }
 
     static float Gravity(float verticalVelocity, float acceleration) //simple way to add gravity to player calculations
@@ -95,7 +100,7 @@ public class PlayerIdleState : PlayerBaseState
         { //this makes sure that the player didnt hit d-pad diagonally. only up, down, left, or right
             return;
         }
-        if (Time.time < ctx._lastGravityChangeTime + ctx._gravityChangeCooldownTime || playerStateManager.currentPlayerState != playerStateManager.PlayerState._default) //checks when the player last changed their gravity and blocks them from changing again until cooldown is done
+        if (Time.time < ctx._lastGravityChangeTime + ctx._gravityChangeCooldownTime) //checks when the player last changed their gravity and blocks them from changing again until cooldown is done
         {
             return;
         }

@@ -12,4 +12,9 @@ public class PlayerStateFactory
     public PlayerBaseState SwitchGravity() {
         return new PlayerGravitySwitchState(context, this);
     }
+
+    public PlayerBaseState Dash()
+    {
+        return new PlayerDashState(context, this);
+    }
 }
