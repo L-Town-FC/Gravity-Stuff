@@ -16,16 +16,17 @@ public class PlayerStateMachine : MonoBehaviour
     public PlayerStateFactory _states { get { return states; } }
     public Transform _playerCam { get { return playerCam; } set { playerCam = value; } }
     public playerCamera _playerCameraScript { get { return playerCameraScript; } set { playerCameraScript = value; } }
+    public Rigidbody _rb { get { return rb; }}
 
     //Movement
     public Vector3 _movementInput { get { return movementInput; } set { movementInput = value; } }
     public Vector3 _currentMoveInput { get { return currentMoveInput; } set { currentMoveInput = value; } }
     public Vector3 _currentMoveDir { get { return currentMoveDir; } set { currentMoveDir = value; } }
+    public Vector3 _currentCombinedMoveDir {  get { return currentCombinedMoveDir; } }
     public float _dirChange { get { return dirChange; } set { dirChange = value; } }
     public bool _isJumpPressed { get { return isJumpPressed; } set { isJumpPressed = value; } }
     public bool _isDashPressed { get { return isDashPressed; } set { isDashPressed = value; } }
     public bool _isGrounded { get { return isGrounded; } set { isGrounded = value; } }
-    //
 
     //Gravity
     public bool _disableGravity { get { return disableGravity; } set { disableGravity = value; } }
@@ -38,6 +39,12 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector3 _newGravity { get { return newGravity; } set { newGravity = value; } }
     public Vector3 _rotationAxis { get { return rotationAxis; } set { rotationAxis = value; } }
     public Vector3 _up { get { return up; } set { up = value; } }
+
+    //Dash
+    public bool _checkDash { get { return checkDash; }  set { checkDash = value; } }
+    public bool _isDash { get { return isDash; } set { isDash = value; } }
+    public float _dashCooldownTime {  get { return dashCooldownTime; } set { dashCooldownTime = value; } }
+    public float _lastDashTime { get { return lastDashTime; } set { lastDashTime = value; } }
     #endregion
 
     #region Action Maps and Inputs
@@ -84,8 +91,18 @@ public class PlayerStateMachine : MonoBehaviour
     Vector3 currentCombinedMoveDir = Vector3.zero;
     #endregion
 
+    #region Dash Variables
+    float dashCooldownTime = 1.25f;
+    float lastDashTime = 0f;
+    bool checkDash = false;
+    bool isDash = false;
+    #endregion
+
     public delegate void GravityChange(float currentTime);
     public static event GravityChange gravityChanged;
+
+    public delegate void DashEvent(float currentTime);
+    public static event DashEvent dashed;
 
     private void Awake()
     {
@@ -113,6 +130,14 @@ public class PlayerStateMachine : MonoBehaviour
             gravityChanged(Time.time);
             gravityChange = false;
         }
+
+        if (isDash)
+        {
+            dashed(Time.time);
+            isDash = false;
+        }
+
+        Debug.DrawRay(transform.position, transform.TransformDirection(currentMoveDir) * 3f, Color.black);
     }
 
     //apply inputs to components in fixed update
@@ -144,7 +169,10 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void Dash(InputAction.CallbackContext obj)
     {
-        isDashPressed = true;
+        if (obj.performed)
+        {
+            checkDash = true;
+        }
     }
     private void ChangeGravity(InputAction.CallbackContext obj)
     {

@@ -7,31 +7,51 @@ public class PlayerDashState : PlayerBaseState
     public PlayerDashState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory)
     : base(currentContext, playerStateFactory) { }
 
+    float startTime;
+    float dashTime = 0.25f;
+    float dashForce = 500f;
+    Vector3 dashDir;
+
     public override void EnterState()
     {
-        Debug.Log("Dash");
+        dashDir = ctx.transform.TransformDirection(ctx._currentMoveDir + new Vector3(0f, ctx._verticalVelocity/30f, 0f));
+        if(dashDir == Vector3.zero)
+        {
+            dashDir = ctx.transform.TransformDirection(Vector3.forward);
+        }
+        startTime = Time.time;
+        ctx._rb.constraints = RigidbodyConstraints.FreezeRotation; //if player rotation is allowed the player rotates like crazy when a collision occurs during a dash
+        ctx._lastDashTime = Time.time;
+        ctx._isDash = true;
     }
     public override void UpdateState()
     {
+        //Debug.DrawRay(ctx.transform.position, ctx._currentCombinedMoveDir * 5f, Color.blue);
 
-
+        ctx._rb.AddForce(dashDir * dashForce);
+        ctx._rb.maxAngularVelocity = 0f;
         CheckSwitchState();
     }
 
     public override void FixedUpdateState()
     {
 
+
     }
 
     public override void ExitState()
     {
-        Debug.Log("Leaving Dash");
+        ctx._rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; //resetting constraints to originals
     }
     public override void InitializeSubState()
     {
     }
     public override void CheckSwitchState()
     {
-        SwitchState(factory.Idle());
+        if(Time.time - startTime >= dashTime)
+        {
+            SwitchState(factory.Idle());
+        }
+        
     }
 }

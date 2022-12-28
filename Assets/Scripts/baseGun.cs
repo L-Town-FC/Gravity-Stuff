@@ -63,13 +63,13 @@ public class baseGun : MonoBehaviour
     protected virtual void Update()
     {
         //simplest way i could think of stopping shooting while flipping gravity. will probably need to be changed later
-        if(playerStateMachine._currentState.ToString() != playerStateMachine._states.SwitchGravity().ToString())
+        if(playerStateMachine._currentState.ToString() != playerStateMachine._states.Idle().ToString())
         {
-            anim.enabled = true;
+            anim.enabled = false;
         }
         else
         {
-            anim.enabled = false;
+            anim.enabled = true;
         }
 
         //Shooting();

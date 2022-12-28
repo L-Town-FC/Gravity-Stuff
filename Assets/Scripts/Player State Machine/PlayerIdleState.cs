@@ -10,6 +10,7 @@ public class PlayerIdleState : PlayerBaseState
 
     //MAY NEED TO MOVE THIS VALUE INTO PLAYER STATE MACHINE SCRIPT SO UI CAN ACCESS IT
     bool switchGravity = false; //set to true if conditions are met to flip players gravity
+    bool dash = false;
 
     //rate at which player can change direction. It takes more time to change direction in the air than on the ground
     float maxGroundDirChange = 0.25f;
@@ -24,6 +25,12 @@ public class PlayerIdleState : PlayerBaseState
         {
             ChangeGravityCheck(ctx._newGravity);
             ctx._checkGravitySwitch = false;
+        }
+
+        if (ctx._checkDash)
+        {
+            DashCheck();
+            ctx._checkDash = false;
         }
 
         CheckSwitchState();
@@ -73,10 +80,10 @@ public class PlayerIdleState : PlayerBaseState
         {
             SwitchState(factory.SwitchGravity());
             switchGravity = false;
-        }else if (ctx._isDashPressed)
+        }else if (dash)
         {
             SwitchState(factory.Dash());
-            ctx._isDashPressed = false;
+            dash = false;
         }
 
     }
@@ -154,6 +161,15 @@ public class PlayerIdleState : PlayerBaseState
         ctx._rotationAxis = finalRotationAxis;
 
         switchGravity = true;
+    }
+
+    void DashCheck()
+    {
+        if(Time.time - ctx._lastDashTime >= ctx._dashCooldownTime)
+        {
+            dash = true;
+            
+        }
     }
 
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Cooldown: MonoBehaviour
+public class Cooldown1: MonoBehaviour
 {
     [SerializeField]
     GameObject player;
@@ -20,7 +20,7 @@ public class Cooldown: MonoBehaviour
     private void Awake()
     {
         playerStateMachine = player.GetComponent<PlayerStateMachine>();
-        changeCooldownTime = playerStateMachine._gravityChangeCooldownTime;
+        changeCooldownTime = playerStateMachine._dashCooldownTime;
     }
 
     // Start is called before the first frame update
@@ -40,18 +40,18 @@ public class Cooldown: MonoBehaviour
         cooldownSlider.value = Mathf.InverseLerp(changeTime, changeTime + changeCooldownTime, Time.time);
     }
 
-    void UpdateGravityChangeTime(float currentTime)
+    void UpdateDashTime(float currentTime)
     {
         changeTime = currentTime;
     }
 
     private void OnEnable()
     {
-        PlayerStateMachine.gravityChanged += UpdateGravityChangeTime;
+        PlayerStateMachine.dashed += UpdateDashTime;
     }
 
     private void OnDisable()
     {
-        PlayerStateMachine.gravityChanged -= UpdateGravityChangeTime;
+        PlayerStateMachine.dashed -= UpdateDashTime;
     }
 }
