@@ -45,6 +45,11 @@ public class PlayerStateMachine : MonoBehaviour
     public bool _isDash { get { return isDash; } set { isDash = value; } }
     public float _dashCooldownTime {  get { return dashCooldownTime; } set { dashCooldownTime = value; } }
     public float _lastDashTime { get { return lastDashTime; } set { lastDashTime = value; } }
+
+    //Equipment
+    public bool _checkEquipment {  get { return checkEquipment; } set { checkEquipment = value; } }
+    public int _equipmentAmount { get { return equipmentAmount; } set { equipmentAmount = value; } }
+    public GameObject _currentEquipment { get { return currentEquipment; } set { currentEquipment = value; } }
     #endregion
 
     #region Action Maps and Inputs
@@ -96,6 +101,13 @@ public class PlayerStateMachine : MonoBehaviour
     float lastDashTime = 0f;
     bool checkDash = false;
     bool isDash = false;
+    #endregion
+
+    #region Equipment Variables
+    bool checkEquipment = false;
+    int equipmentAmount = 10;
+    [SerializeField]
+    GameObject currentEquipment;
     #endregion
 
     public delegate void GravityChange(float currentTime);
@@ -174,6 +186,20 @@ public class PlayerStateMachine : MonoBehaviour
             checkDash = true;
         }
     }
+
+    private void UseEquipment(InputAction.CallbackContext obj)
+    {
+        if (obj.performed)
+        {
+            _checkEquipment = true;
+        }
+    }
+
+    public void SpawnEquipment()
+    {
+        GameObject temp = Instantiate(_currentEquipment, transform.position, Quaternion.identity);
+        temp.GetComponent<BubbleShield>().gravityDir = _up;
+    }
     private void ChangeGravity(InputAction.CallbackContext obj)
     {
         if (obj.performed)
@@ -181,7 +207,6 @@ public class PlayerStateMachine : MonoBehaviour
             checkGravitySwitch = true;
             newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
         }
-
     }
 
     static Vector3[] GetLowerBounds(Vector3 center, float radius)
@@ -243,6 +268,9 @@ public class PlayerStateMachine : MonoBehaviour
 
         playerControls.PlayerMovement.Dash.performed += Dash;
         playerControls.PlayerMovement.Dash.Enable();
+
+        playerControls.PlayerMovement.Equipment.performed += UseEquipment;
+        playerControls.PlayerMovement.Equipment.Enable();
     }
 
     void GettingPlayerInputs()
@@ -258,5 +286,6 @@ public class PlayerStateMachine : MonoBehaviour
         playerControls.PlayerMovement.Jump.Disable();
         playerControls.PlayerMovement.GravityChange.Disable();
         playerControls.PlayerMovement.Dash.Disable();
+        playerControls.PlayerMovement.Equipment.Disable();
     }
 }

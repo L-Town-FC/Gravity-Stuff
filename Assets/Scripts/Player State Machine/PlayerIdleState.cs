@@ -21,6 +21,15 @@ public class PlayerIdleState : PlayerBaseState
     }
     public override void UpdateState()
     {
+        if (ctx._checkEquipment)
+        {
+            if(ctx._equipmentAmount > 0)
+            {
+                ctx.SpawnEquipment();
+                ctx._equipmentAmount -= 1;
+            }
+            ctx._checkEquipment = false;
+        }
         if (ctx._checkGravitySwitch)
         {
             ChangeGravityCheck(ctx._newGravity);

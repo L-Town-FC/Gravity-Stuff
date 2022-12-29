@@ -89,6 +89,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Equipment"",
+                    ""type"": ""Button"",
+                    ""id"": ""1639f53e-a812-479d-a620-7ffcf36ce55e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -267,6 +276,17 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Dash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8128fe93-6c54-484a-a958-1b90342a38bb"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Controller"",
+                    ""action"": ""Equipment"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -305,6 +325,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_PlayerMovement_Shoot = m_PlayerMovement.FindAction("Shoot", throwIfNotFound: true);
         m_PlayerMovement_Reload = m_PlayerMovement.FindAction("Reload", throwIfNotFound: true);
         m_PlayerMovement_Dash = m_PlayerMovement.FindAction("Dash", throwIfNotFound: true);
+        m_PlayerMovement_Equipment = m_PlayerMovement.FindAction("Equipment", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -371,6 +392,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerMovement_Shoot;
     private readonly InputAction m_PlayerMovement_Reload;
     private readonly InputAction m_PlayerMovement_Dash;
+    private readonly InputAction m_PlayerMovement_Equipment;
     public struct PlayerMovementActions
     {
         private @PlayerControls m_Wrapper;
@@ -382,6 +404,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Shoot => m_Wrapper.m_PlayerMovement_Shoot;
         public InputAction @Reload => m_Wrapper.m_PlayerMovement_Reload;
         public InputAction @Dash => m_Wrapper.m_PlayerMovement_Dash;
+        public InputAction @Equipment => m_Wrapper.m_PlayerMovement_Equipment;
         public InputActionMap Get() { return m_Wrapper.m_PlayerMovement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -412,6 +435,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Dash.started -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnDash;
                 @Dash.performed -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnDash;
                 @Dash.canceled -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnDash;
+                @Equipment.started -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnEquipment;
+                @Equipment.performed -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnEquipment;
+                @Equipment.canceled -= m_Wrapper.m_PlayerMovementActionsCallbackInterface.OnEquipment;
             }
             m_Wrapper.m_PlayerMovementActionsCallbackInterface = instance;
             if (instance != null)
@@ -437,6 +463,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Dash.started += instance.OnDash;
                 @Dash.performed += instance.OnDash;
                 @Dash.canceled += instance.OnDash;
+                @Equipment.started += instance.OnEquipment;
+                @Equipment.performed += instance.OnEquipment;
+                @Equipment.canceled += instance.OnEquipment;
             }
         }
     }
@@ -468,5 +497,6 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnShoot(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
+        void OnEquipment(InputAction.CallbackContext context);
     }
 }
