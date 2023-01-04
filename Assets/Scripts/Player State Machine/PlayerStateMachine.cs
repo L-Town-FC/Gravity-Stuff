@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerStateMachine : MonoBehaviour
 {
+    //TODO: Make base equipment class that so they all have standard naming conventions that can be used
+
     //state variables
     PlayerBaseState currentState;
     PlayerStateFactory states;

@@ -5,12 +5,13 @@ using UnityEngine.VFX;
 
 public class baseBullet : MonoBehaviour
 {
+    Rigidbody rb;
     Collider bulletCollider;
     Renderer bulletRenderer;
     Light bulletLight;
     TrailRenderer trail;
     [SerializeField]
-    protected float bulletSpeed = 40f;
+    protected float bulletSpeed = 5f;
     protected float bulletAccel;
     [SerializeField]
     protected float bulletSize = 0.5f;
@@ -26,9 +27,15 @@ public class baseBullet : MonoBehaviour
 
     VisualEffect shrapnelEffect;
 
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
 
         bulletCollider = GetComponent<Collider>();
         bulletRenderer = GetComponent<Renderer>();
@@ -38,7 +45,6 @@ public class baseBullet : MonoBehaviour
         transform.localScale *= bulletSize;
         startTime = Time.time;
         gradientColorKeys = trail.colorGradient.colorKeys;
-
     }
 
     // Update is called once per frame
@@ -65,15 +71,17 @@ public class baseBullet : MonoBehaviour
 
     private void FixedUpdate()
     {
-        transform.position += transform.forward * bulletSpeed * Time.fixedDeltaTime;
+        //transform.position += transform.forward * bulletSpeed * Time.fixedDeltaTime;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        transform.position = collisionPoint;
+        rb.position = collisionPoint;
+        rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
         shrapnelEffect.Play();
         bulletLight.enabled = false;
         bulletSpeed = 0f;
+        rb.velocity = Vector3.zero;
         bulletCollider.enabled = false;
         bulletRenderer.enabled = false;
         trail.emitting = false;
