@@ -134,6 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSpeed: 40
   bulletSize: 1
+  startDir: {x: 0, y: 0, z: 0}
 --- !u!108 &7022217485134803640
 Light:
   m_ObjectHideFlags: 0

@@ -27,14 +27,20 @@ public class baseBullet : MonoBehaviour
 
     VisualEffect shrapnelEffect;
 
+    Collider[] collidersAtSpawn;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        collidersAtSpawn = Physics.OverlapSphere(transform.position, 0.01f);
+        IgnoreCollision();
+
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        //spawnTime = Time.time;
         rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
 
         bulletCollider = GetComponent<Collider>();
@@ -64,32 +70,37 @@ public class baseBullet : MonoBehaviour
         {
             ShrinkTrail();
         }
-
-
-
-    }
-
-    private void FixedUpdate()
-    {
-        //transform.position += transform.forward * bulletSpeed * Time.fixedDeltaTime;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        rb.position = collisionPoint;
-        rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
-        shrapnelEffect.Play();
+        if (collision.transform.tag == "bubble shield")
+        {
+            return;
+        }
+
+        rb.position = collisionPoint; //sets the object to the point of collision because it would normally bounce off the object and change position in the time this is called
+        rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ; //ensures that once its in the right position, it no longer moves
+        rb.velocity = Vector3.zero; //another check to make sure the bullet isnt moving
+        shrapnelEffect.Play(); //plays the visual effect for shrapnel
+
+        //used to make the bullet disappear on impact
         bulletLight.enabled = false;
-        bulletSpeed = 0f;
-        rb.velocity = Vector3.zero;
         bulletCollider.enabled = false;
         bulletRenderer.enabled = false;
         trail.emitting = false;
+
+        //starts the trail shrinking funciton
         shrinkTrail = true;
 
+        //1 second was chosen arbitrarily. I didnt want the object sticking around too long because it was invisible and doing nothing but taking up memory, but wanted to give the shrink tail function time to run
         Destroy(transform.gameObject, 1f);
     }
 
+
+    //the tail size is normally constant during its lifetime
+    //this slowly changes the gradients for transparency so end of the tail starts becoming more transparent until the whole tail is transparent
+    //tail disappears slowly over time now instead of all at once which could be jarring
     void ShrinkTrail()
     {
         Gradient gradient = new Gradient();
@@ -102,6 +113,19 @@ public class baseBullet : MonoBehaviour
         alpha2 -= 0.007f;
 
         trail.colorGradient = gradient;
+    }
+
+    //checks if the bullet spawns inside a bubble shield, i.e. the player is inside the bubble shield
+    //Before this, unity physics would take over and launch the bullet out of the collider in a random direction. by ignoring the collider, the player can should out of the bubble shield just fine
+    void IgnoreCollision()
+    {
+        foreach(Collider col in collidersAtSpawn)
+        {
+            if(col.tag == "bubble shield")
+            {
+                Physics.IgnoreCollision(transform.GetComponent<Collider>(), col);
+            }
+        }
     }
 
 }

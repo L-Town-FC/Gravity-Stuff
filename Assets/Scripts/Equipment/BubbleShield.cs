@@ -9,6 +9,7 @@ public class BubbleShield : MonoBehaviour
     float gravity = -.75f; //matches players. Need to change these together. Should probably have a global one
     float maxSize = 10f;
     float sizeChangeRate = 0.1f;
+    [SerializeField]
     float duration = 10f;
     bool isFalling = true;
     Vector3 velocity;
@@ -39,6 +40,7 @@ public class BubbleShield : MonoBehaviour
             else
             {
                 currentScale = Vector3.one * maxSize;
+                transform.GetComponent<Collider>().isTrigger = true;
             }
 
             transform.localScale = currentScale;

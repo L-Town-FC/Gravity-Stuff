@@ -59,6 +59,7 @@ public class playerCamera : MonoBehaviour
         //used to max pan camera up and down. this is camera specific as rotating the players whole body would cause problems
         float currentAngle = playerCam.localEulerAngles.x;
 
+        //unity handles angles weirdly when you go past 360 and this ensures the angle is always between -180f and 180f
         if (currentAngle > 180f)
         {
             currentAngle -= 360f;

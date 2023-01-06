@@ -109,6 +109,8 @@ public class PlayerStateMachine : MonoBehaviour
     bool checkEquipment = false;
     int equipmentAmount = 10;
     [SerializeField]
+    int teamNumber;
+    [SerializeField]
     GameObject currentEquipment;
     #endregion
 
@@ -202,6 +204,7 @@ public class PlayerStateMachine : MonoBehaviour
         GameObject temp = Instantiate(_currentEquipment, transform.position, Quaternion.identity);
         temp.GetComponent<BubbleShield>().gravityDir = _up;
         temp.transform.up = _up;
+        
     }
     private void ChangeGravity(InputAction.CallbackContext obj)
     {
