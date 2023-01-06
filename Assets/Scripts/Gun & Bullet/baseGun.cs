@@ -36,6 +36,8 @@ public class baseGun : MonoBehaviour
     public delegate void UpdateAmmo(int currentAmmo, int maxAmmo);
     public static event UpdateAmmo ammoUpdate;
 
+    LayerMask layerMask = new LayerMask();
+
     // Start is called before the first frame update
 
     protected virtual void Awake()
@@ -52,6 +54,8 @@ public class baseGun : MonoBehaviour
 
         endOfBarrel = transform.GetChild(0);
         bulletsRemaining = clipSize;
+
+        layerMask = LayerMask.GetMask("Default");
     }
 
     protected virtual void Start()
@@ -63,6 +67,7 @@ public class baseGun : MonoBehaviour
     protected virtual void Update()
     {
         //simplest way i could think of stopping shooting while flipping gravity. will probably need to be changed later
+        //the player can only shoot in the idle state right now. Design choice to make it so there isn't too much going on at once
         if(playerStateMachine._currentState.ToString() != playerStateMachine._states.Idle().ToString())
         {
             anim.enabled = false;
@@ -72,22 +77,24 @@ public class baseGun : MonoBehaviour
             anim.enabled = true;
         }
 
-        //Shooting();
+        //if the gun has no ammo remaining, it shouldnt be allowed to fire until its been reloaded
         if(bulletsRemaining <= 0)
         {
             anim.SetBool("isShooting", false);
         }
-        Debug.DrawRay(endOfBarrel.position, endOfBarrel.forward * 5f, Color.black);
+        //Debug.DrawRay(endOfBarrel.position, endOfBarrel.forward * 5f, Color.black);
     }
     //checks when trigger is pulled
     void Shoot(InputAction.CallbackContext obj)
     {
+        //player can shoot when the trigger is pushed down
         if (obj.performed)
         {
             isShooting = true;
             anim.SetBool("isShooting", true);
         }
 
+        //player cant shoot when the trigger isnt pushed down
         if (obj.canceled)
         {
             isShooting = false;
@@ -105,6 +112,7 @@ public class baseGun : MonoBehaviour
 
     public void ReloadAnimation()
     {
+        //lets the player reload
         bulletsRemaining = clipSize;
         if (ammoUpdate != null)
         {
@@ -132,7 +140,7 @@ public class baseGun : MonoBehaviour
         Vector3 newForward;
         RaycastHit hit;
 
-        if(Physics.Raycast(new Ray(playerCam.position, playerCam.forward), out hit, 50f))
+        if(Physics.Raycast(new Ray(playerCam.position, playerCam.forward), out hit, 50f, layerMask))
         {
             newForward = hit.point - endOfBarrel.position;
         }
@@ -140,6 +148,8 @@ public class baseGun : MonoBehaviour
         {
             newForward = playerCam.forward * 50f + playerCam.position - endOfBarrel.position;
         }
+
+        Debug.DrawRay(transform.position, newForward * 5f);
 
         temp.transform.forward = newForward;
         bulletsRemaining -= 1;
@@ -168,8 +178,6 @@ public class baseGun : MonoBehaviour
         playerControls.PlayerMovement.Reload.performed += Reload;
         playerControls.PlayerMovement.Shoot.Enable();
         playerControls.PlayerMovement.Reload.Enable();
-
-
     }
 
     private void OnDisable()
