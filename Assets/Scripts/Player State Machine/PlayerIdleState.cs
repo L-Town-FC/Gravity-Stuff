@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerIdleState : PlayerBaseState
 {
+    //TODO: Use Animation curves for better jumping
+    //https://gustavcorpas.medium.com/building-a-customizable-jump-in-unity-using-animation-curves-a168a618428d Looka promising
+
     public PlayerIdleState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) 
     :base (currentContext, playerStateFactory){ }
     float jumpForce = 20f; //arbitrary number selected for velocity applied to player when jumping
@@ -50,6 +53,7 @@ public class PlayerIdleState : PlayerBaseState
         if (ctx._isJumpPressed)
         {
             ctx._verticalVelocity = jumpForce;
+            ctx._rb.AddForce(ctx.jumpForce * ctx._up, ForceMode.Force);
             ctx._isJumpPressed = false;
         }
 

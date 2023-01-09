@@ -12,6 +12,9 @@ public class testMovement : MonoBehaviour
     Vector3 movementInput = Vector3.zero; //holds players inputs
     CapsuleCollider capsuleCollider;
 
+    public float gravity = -9.8f;
+    public float moveForce = 30f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -33,7 +36,9 @@ public class testMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.AddForce(movementInput * 2f, ForceMode.VelocityChange);
+        rb.AddForce(Vector3.up * gravity, ForceMode.Force);
+
+        rb.AddForce(movementInput * moveForce, ForceMode.Force);
     }
 
     private void OnEnable()

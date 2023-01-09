@@ -76,6 +76,8 @@ public class PlayerStateMachine : MonoBehaviour
     bool gravityChange = false;
     bool checkGravitySwitch = false;
     float acceleration = -0.75f; //acceleration due to gravity
+    public float gravityForce = -1000f;
+    public float jumpForce = 1000f;
     float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     float gravityChangeCooldownTime = 1.25f;
     float lastGravityChangeTime = 0f;
@@ -92,6 +94,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     #region Movement Variables
     float moveSpeed = 7f; //speed at which players moves
+    public float moveForce = 250f;
+    public float maxVelocity = 10f;
     float dirChange = 0.25f; //rate at which player can change direction. It takes more time to change direction in the air than on the ground
     Vector3 currentMoveDir = Vector3.zero;
     Vector3 currentMoveInput = Vector3.zero;
@@ -153,19 +157,41 @@ public class PlayerStateMachine : MonoBehaviour
             isDash = false;
         }
 
+        if (_isGrounded)
+        {
+            _rb.drag = 5f;
+        }
+        else
+        {
+            _rb.drag = 1f;
+        }
+
+        _rb.velocity = maxVelocitySetter(maxVelocity, _rb.velocity, _up);
+
         Debug.DrawRay(transform.position, transform.TransformDirection(currentMoveDir) * 3f, Color.black);
     }
 
     //apply inputs to components in fixed update
     private void FixedUpdate()
     {
-        rb.velocity = Vector3.zero; //fixes bug where if you moved into a wall for long enough your velocity would be stuck at a value other than zero
+        //rb.velocity = Vector3.zero; //fixes bug where if you moved into a wall for long enough your velocity would be stuck at a value other than zero
 
         currentState.FixedUpdateState();
 
-        currentCombinedMoveDir = transform.up * _verticalVelocity + transform.TransformDirection(_currentMoveDir) * moveSpeed;
+        //currentCombinedMoveDir = transform.up * _verticalVelocity + transform.TransformDirection(_currentMoveDir) * moveSpeed;
 
-        rb.MovePosition(rb.position + currentCombinedMoveDir * Time.fixedDeltaTime);
+        //rb.MovePosition(rb.position + currentCombinedMoveDir * Time.fixedDeltaTime);
+
+        if (_isGrounded)
+        {
+            rb.AddForce(_up * -10f);
+        }
+        else
+        {
+            rb.AddForce(_up * gravityForce);
+        }
+
+        rb.AddForce(moveForce * transform.TransformDirection(_currentMoveDir));
     }
 
     private void OnDisable()
@@ -251,6 +277,46 @@ public class PlayerStateMachine : MonoBehaviour
             }
         }
         return false;
+    }
+
+    static Vector3 maxVelocitySetter(float maxVelocity, Vector3 currentVelocity, Vector3 currentUP)
+    {
+        float x = currentVelocity.x;
+        float y = currentVelocity.y;
+        float z = currentVelocity.z;
+
+        float newX;
+        float newY;
+        float newZ;
+
+        if(Mathf.Abs(x) > maxVelocity)
+        {
+            newX = maxVelocity * Mathf.Sign(x);
+        }
+        else
+        {
+            newX = x;
+        }
+
+        if (Mathf.Abs(y) > maxVelocity)
+        {
+            newY = maxVelocity * Mathf.Sign(y);
+        }
+        else
+        {
+            newY = y;
+        }
+
+        if (Mathf.Abs(z) > maxVelocity)
+        {
+            newZ = maxVelocity * Mathf.Sign(z);
+        }
+        else
+        {
+            newZ = z;
+        }
+
+        return new Vector3(newX, newY, newZ);
     }
 
     void SettingInitialPlayerConditions()
