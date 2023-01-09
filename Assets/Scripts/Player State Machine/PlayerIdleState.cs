@@ -6,6 +6,8 @@ public class PlayerIdleState : PlayerBaseState
 {
     //TODO: Use Animation curves for better jumping
     //https://gustavcorpas.medium.com/building-a-customizable-jump-in-unity-using-animation-curves-a168a618428d Looka promising
+    //POSSIBLE SOLUTION: Increase downward force on player ONLY while rb.y velocity (or whatever is the current down direction for the player) is negative
+    //This ensures that increased gravity is only applied on the downward portion of a jump, making it seem less floaty
 
     public PlayerIdleState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) 
     :base (currentContext, playerStateFactory){ }
