@@ -7,7 +7,8 @@ public class BlackHole : MonoBehaviour
     //Created a dictionary so all gravitationally bound objects can be easily added, updated, and removed. Needed a way to track all objects that wasn't too intensive
     //This seemed like it required the lowest amount of information to be tracked and the least amount of refernce calls
     Dictionary<int, Rigidbody> keyValuePairs = new Dictionary<int, Rigidbody>();
-    float baseGravitationalForce = 200f;
+    [SerializeField]
+    float baseGravitationalForce = 20f;
     Vector3 center;
 
     // Start is called before the first frame update

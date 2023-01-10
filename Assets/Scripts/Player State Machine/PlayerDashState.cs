@@ -20,7 +20,6 @@ public class PlayerDashState : PlayerBaseState
             dashDir = ctx.transform.TransformDirection(Vector3.forward);
         }
         startTime = Time.time;
-        ctx._rb.constraints = RigidbodyConstraints.FreezeRotation; //if player rotation is allowed the player rotates like crazy when a collision occurs during a dash
         ctx._lastDashTime = Time.time;
         ctx._isDash = true;
     }
@@ -41,7 +40,7 @@ public class PlayerDashState : PlayerBaseState
 
     public override void ExitState()
     {
-        ctx._rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ; //resetting constraints to originals
+
     }
     public override void InitializeSubState()
     {
