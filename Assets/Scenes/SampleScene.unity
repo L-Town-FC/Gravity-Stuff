@@ -2886,7 +2886,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 1
 --- !u!136 &2084556577
 CapsuleCollider:
@@ -2994,10 +2994,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disableGravity: 0
-  gravityForce: -100
-  jumpForce: 2000
+  gravityForce: -12
+  fallingGravityMultiplier: 6
+  jumpForce: 120
   moveForce: 400
-  maxVelocity: 7
+  maxNonVerticalVelocity: 6
+  maxVerticalVelocity: 18
   teamNumber: 0
   currentEquipment: {fileID: 5250512725779278815, guid: 3172738750dd7c24ca8bf5e58ddce65d,
     type: 3}

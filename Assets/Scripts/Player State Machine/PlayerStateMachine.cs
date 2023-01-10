@@ -25,17 +25,13 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector3 _currentMoveInput { get { return currentMoveInput; } set { currentMoveInput = value; } }
     public Vector3 _currentMoveDir { get { return currentMoveDir; } set { currentMoveDir = value; } }
     public Vector3 _currentCombinedMoveDir {  get { return currentCombinedMoveDir; } }
-    public float _dirChange { get { return dirChange; } set { dirChange = value; } }
     public bool _isJumpPressed { get { return isJumpPressed; } set { isJumpPressed = value; } }
-    public bool _isDashPressed { get { return isDashPressed; } set { isDashPressed = value; } }
     public bool _isGrounded { get { return isGrounded; } set { isGrounded = value; } }
 
     //Gravity
-    public bool _disableGravity { get { return disableGravity; } set { disableGravity = value; } }
     public bool _gravityChange { get { return gravityChange; } set { gravityChange = value; } }
     public bool _checkGravitySwitch { get { return checkGravitySwitch; } set { checkGravitySwitch = value; } }
     public float _verticalVelocity { get { return verticalVelocity; } set { verticalVelocity = value; } }
-    public float _accelerationDueToGravity { get { return acceleration; } set { acceleration = value; } }
     public float _gravityChangeCooldownTime { get { return gravityChangeCooldownTime; } }
     public float _lastGravityChangeTime { get { return lastGravityChangeTime; } set { lastGravityChangeTime = value; } }
     public Vector3 _newGravity { get { return newGravity; } set { newGravity = value; } }
@@ -55,12 +51,10 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
 
     #region Action Maps and Inputs
-    //Action maps and inputs
     private PlayerControls playerControls;
     private InputAction movement;
     Vector3 movementInput = Vector3.zero; //holds players inputs
     bool isJumpPressed = false;
-    bool isDashPressed = false;
     #endregion
 
     #region Player Componenets
@@ -72,12 +66,11 @@ public class PlayerStateMachine : MonoBehaviour
 
     #region Gravity Variables
     [SerializeField]
-    bool disableGravity = false; //for testing only. disable players gravity
     bool gravityChange = false;
     bool checkGravitySwitch = false;
-    float acceleration = -0.75f; //acceleration due to gravity
-    public float gravityForce = -1000f;
-    public float jumpForce = 1000f;
+    public float gravityForce = -12f;
+    public float fallingGravityMultiplier = 6f;
+    public float jumpForce = 120f;
     float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     float gravityChangeCooldownTime = 1.25f;
     float lastGravityChangeTime = 0f;
@@ -93,10 +86,9 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
 
     #region Movement Variables
-    float moveSpeed = 7f; //speed at which players moves
-    public float moveForce = 250f;
-    public float maxVelocity = 10f;
-    float dirChange = 0.25f; //rate at which player can change direction. It takes more time to change direction in the air than on the ground
+    public float moveForce = 400f;
+    public float maxNonVerticalVelocity = 6f;
+    public float maxVerticalVelocity = 18f;
     Vector3 currentMoveDir = Vector3.zero;
     Vector3 currentMoveInput = Vector3.zero;
     Vector3 currentCombinedMoveDir = Vector3.zero;
@@ -163,10 +155,10 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else
         {
-            _rb.drag = 1f;
+            _rb.drag = 3f;
         }
 
-        _rb.velocity = maxVelocitySetter(maxVelocity, _rb.velocity, _up);
+        _rb.velocity = maxVelocitySetter(maxNonVerticalVelocity, maxVerticalVelocity, _rb.velocity, _up);
 
         Debug.DrawRay(transform.position, transform.TransformDirection(currentMoveDir) * 3f, Color.black);
     }
@@ -174,13 +166,7 @@ public class PlayerStateMachine : MonoBehaviour
     //apply inputs to components in fixed update
     private void FixedUpdate()
     {
-        //rb.velocity = Vector3.zero; //fixes bug where if you moved into a wall for long enough your velocity would be stuck at a value other than zero
-
         currentState.FixedUpdateState();
-
-        //currentCombinedMoveDir = transform.up * _verticalVelocity + transform.TransformDirection(_currentMoveDir) * moveSpeed;
-
-        //rb.MovePosition(rb.position + currentCombinedMoveDir * Time.fixedDeltaTime);
 
         if (_isGrounded)
         {
@@ -188,7 +174,14 @@ public class PlayerStateMachine : MonoBehaviour
         }
         else
         {
-            rb.AddForce(_up * gravityForce);
+            if (Vector3.Dot(rb.velocity, _up) < 0f)
+            {
+                rb.AddForce(_up * gravityForce * fallingGravityMultiplier);
+            }
+            else
+            {
+                rb.AddForce(_up * gravityForce);
+            }
         }
 
         rb.AddForce(moveForce * transform.TransformDirection(_currentMoveDir));
@@ -200,7 +193,7 @@ public class PlayerStateMachine : MonoBehaviour
         DisablingPlayerControls();
     }
 
-
+    #region Input Actions
     private void DoJump(InputAction.CallbackContext obj)
     {
         if (isGrounded)
@@ -225,13 +218,6 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
-    public void SpawnEquipment()
-    {
-        GameObject temp = Instantiate(_currentEquipment, transform.position, Quaternion.identity);
-        temp.GetComponent<BubbleShield>().gravityDir = _up;
-        temp.transform.up = _up;
-        
-    }
     private void ChangeGravity(InputAction.CallbackContext obj)
     {
         if (obj.performed)
@@ -239,6 +225,15 @@ public class PlayerStateMachine : MonoBehaviour
             checkGravitySwitch = true;
             newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
         }
+    }
+
+    #endregion
+
+    public void SpawnEquipment()
+    {
+        GameObject temp = Instantiate(_currentEquipment, transform.position, Quaternion.identity);
+        temp.GetComponent<BubbleShield>().gravityDir = _up;
+        temp.transform.up = _up;
     }
 
     static Vector3[] GetLowerBounds(Vector3 center, float radius)
@@ -279,46 +274,44 @@ public class PlayerStateMachine : MonoBehaviour
         return false;
     }
 
-    static Vector3 maxVelocitySetter(float maxVelocity, Vector3 currentVelocity, Vector3 currentUP)
+    #region Velocity Functions
+    //these functions are used to check and set the players max velocities so they cant infinitly gain speed
+
+    //if falling velocity is the same as moving velocity, the player either feels slow and floaty or uncontrollably fast
+    //this function checks which direction is the falling direction and clamps its speed to a larger range of values than the horizontal velocities
+    static Vector3 maxVelocitySetter(float maxNonVerticalVelocity, float maxVerticalVelocity, Vector3 currentVelocity, Vector3 currentUP)
     {
         float x = currentVelocity.x;
         float y = currentVelocity.y;
         float z = currentVelocity.z;
 
-        float newX;
-        float newY;
-        float newZ;
+        x = fallDirChecker(currentUP, Vector3.right, x, maxNonVerticalVelocity, maxVerticalVelocity);
+        y = fallDirChecker(currentUP, Vector3.up, y, maxNonVerticalVelocity, maxVerticalVelocity);
+        z = fallDirChecker(currentUP, Vector3.forward, z, maxNonVerticalVelocity, maxVerticalVelocity);
 
-        if(Mathf.Abs(x) > maxVelocity)
-        {
-            newX = maxVelocity * Mathf.Sign(x);
-        }
-        else
-        {
-            newX = x;
-        }
-
-        if (Mathf.Abs(y) > maxVelocity)
-        {
-            newY = maxVelocity * Mathf.Sign(y);
-        }
-        else
-        {
-            newY = y;
-        }
-
-        if (Mathf.Abs(z) > maxVelocity)
-        {
-            newZ = maxVelocity * Mathf.Sign(z);
-        }
-        else
-        {
-            newZ = z;
-        }
-
-        return new Vector3(newX, newY, newZ);
+        return new Vector3(x, y, z);
     }
 
+    //uses the dot product to compare the current up with a unit vector
+    //if the dot product is zero, i.e. the unit vector is not aligned with the current up, its clamped with the maxNonVerticalVelocity
+    //if the dot prodcut is 1 then the current up is parallel with the unit vector meaning we are looking at the "up" component of the players velocity and it is clamped using the maxVerticalVelocity value
+    static float fallDirChecker(Vector3 currentUp, Vector3 velocityVector, float currentVelocity, float maxNonVerticalVelocity, float maxVerticalVelocity)
+    {
+        if(Mathf.Abs(Vector3.Dot(currentUp, velocityVector)) > 0f)
+        {
+            currentVelocity = Mathf.Clamp(currentVelocity, -maxVerticalVelocity, maxVerticalVelocity);
+        }
+        else
+        {
+            currentVelocity = Mathf.Clamp(currentVelocity, -maxNonVerticalVelocity, maxNonVerticalVelocity);
+        }
+
+        return currentVelocity;
+    }
+
+    #endregion
+
+    #region Initializing Player and Getting Inputs
     void SettingInitialPlayerConditions()
     {
         playerControls = new PlayerControls();
@@ -347,8 +340,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     void GettingPlayerInputs()
     {
-        //movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
-        movementInput = new Vector3(Mathf.MoveTowards(currentMoveInput.x, movement.ReadValue<Vector2>().x, _dirChange), 0f, Mathf.MoveTowards(currentMoveInput.z,movement.ReadValue<Vector2>().y, _dirChange));
+        movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
         _isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
     }
 
@@ -360,4 +352,5 @@ public class PlayerStateMachine : MonoBehaviour
         playerControls.PlayerMovement.Dash.Disable();
         playerControls.PlayerMovement.Equipment.Disable();
     }
+    #endregion
 }

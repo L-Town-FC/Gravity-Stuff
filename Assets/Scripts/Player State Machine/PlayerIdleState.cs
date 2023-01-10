@@ -1,25 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerIdleState : PlayerBaseState
 {
-    //TODO: Use Animation curves for better jumping
-    //https://gustavcorpas.medium.com/building-a-customizable-jump-in-unity-using-animation-curves-a168a618428d Looka promising
-    //POSSIBLE SOLUTION: Increase downward force on player ONLY while rb.y velocity (or whatever is the current down direction for the player) is negative
-    //This ensures that increased gravity is only applied on the downward portion of a jump, making it seem less floaty
+    //TODO: Move input action stuff into this script from the state machine script so I dont have to deal with all these different variables
+    //May be harder than I thought
 
     public PlayerIdleState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) 
     :base (currentContext, playerStateFactory){ }
-    float jumpForce = 20f; //arbitrary number selected for velocity applied to player when jumping
 
     //MAY NEED TO MOVE THIS VALUE INTO PLAYER STATE MACHINE SCRIPT SO UI CAN ACCESS IT
     bool switchGravity = false; //set to true if conditions are met to flip players gravity
     bool dash = false;
-
-    //rate at which player can change direction. It takes more time to change direction in the air than on the ground
-    float maxGroundDirChange = 0.25f;
-    float maxAirDirChange = 0.1f;
 
     public override void EnterState()
     {
@@ -54,20 +48,9 @@ public class PlayerIdleState : PlayerBaseState
     {
         if (ctx._isJumpPressed)
         {
-            ctx._verticalVelocity = jumpForce;
-            ctx._rb.AddForce(ctx.jumpForce * ctx._up, ForceMode.Force);
+            //ctx._verticalVelocity = jumpForce;
+            ctx._rb.AddForce(ctx.jumpForce * ctx._up, ForceMode.Impulse);
             ctx._isJumpPressed = false;
-        }
-
-        if (!ctx._isGrounded)
-        {
-            ctx._verticalVelocity = Gravity(ctx._verticalVelocity, ctx._accelerationDueToGravity);
-            ctx._dirChange = maxAirDirChange;
-        }
-        else
-        {
-            ctx._verticalVelocity = Mathf.Clamp(ctx._verticalVelocity, 0f, Mathf.Infinity); //lowerlimit is -0.1f to make sure it always reached ground and doesnt hover slightly above the ground, positive infinity is so a jump force can be added
-            ctx._dirChange = maxGroundDirChange;
         }
 
         if (ctx._movementInput.magnitude != 0f)
@@ -101,16 +84,6 @@ public class PlayerIdleState : PlayerBaseState
             dash = false;
         }
 
-    }
-
-    static float Gravity(float verticalVelocity, float acceleration) //simple way to add gravity to player calculations
-    {
-        verticalVelocity += acceleration;
-        if (verticalVelocity <= -30f)
-        {
-            verticalVelocity = -30f;
-        }
-        return verticalVelocity;
     }
 
     void ChangeGravityCheck(Vector3 obj)

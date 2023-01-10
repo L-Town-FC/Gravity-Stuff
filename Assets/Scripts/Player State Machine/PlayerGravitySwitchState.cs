@@ -26,7 +26,6 @@ public class PlayerGravitySwitchState : PlayerBaseState
     {
         ResetParameters();
         ctx._playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
-        ctx._disableGravity = true;
         PrecalculateRotation();
     }
     public override void UpdateState()
@@ -40,7 +39,6 @@ public class PlayerGravitySwitchState : PlayerBaseState
         }else if(gravityChangeStep == GravityChangeSteps.done)
         {
             ctx._playerCameraScript.enabled = true;
-            ctx._disableGravity = false;
             gravityChangeStep = GravityChangeSteps.reset;
         }
 
@@ -54,9 +52,7 @@ public class PlayerGravitySwitchState : PlayerBaseState
 
     public override void ExitState()
     {
-        Debug.Log("here");
         ctx._playerCameraScript.enabled = true;
-        ctx._disableGravity = false;
     }
     public override void InitializeSubState()
     {
@@ -78,7 +74,6 @@ public class PlayerGravitySwitchState : PlayerBaseState
         //Gravity and player controls are disabled to make the players movement more predictable
         //The player is rotated so that their players up is opposite the new gravity direction
         ctx._playerCameraScript.enabled = false; //disables players ability to move their camera around during gravity flip. this ensures that player cant screw up coroutine by moving during it
-        ctx._disableGravity = true;
 
         //trying to make it so player is looking at same spot after rotation as before
         //grabs the location of the point that the player is looking at. if the point is significantly far away, a point a set distance away is used instead
