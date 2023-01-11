@@ -14,7 +14,8 @@ public class PlayerDashState : PlayerBaseState
 
     public override void EnterState()
     {
-        dashDir = ctx.transform.TransformDirection(ctx._currentMoveDir + new Vector3(0f, ctx._verticalVelocity/30f, 0f));
+        dashDir = ctx._rb.velocity.normalized;
+
         if(dashDir == Vector3.zero)
         {
             dashDir = ctx.transform.TransformDirection(Vector3.forward);
@@ -27,6 +28,7 @@ public class PlayerDashState : PlayerBaseState
     {
         //Debug.DrawRay(ctx.transform.position, ctx._currentCombinedMoveDir * 5f, Color.blue);
 
+        //adds force in direction that player was initially going when they started the dash
         ctx._rb.AddForce(dashDir * dashForce);
         ctx._rb.maxAngularVelocity = 0f;
         CheckSwitchState();
@@ -45,6 +47,8 @@ public class PlayerDashState : PlayerBaseState
     public override void InitializeSubState()
     {
     }
+
+    //dash lasts set time instead of distance because using rb.add force makes calculating exact distances every frame difficult
     public override void CheckSwitchState()
     {
         if(Time.time - startTime >= dashTime)

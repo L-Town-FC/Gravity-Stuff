@@ -30,6 +30,9 @@ public class PlayerGravitySwitchState : PlayerBaseState
     }
     public override void UpdateState()
     {
+        //gravity flipping is broken up into several steps
+        //the first step covers the majority of the flip
+        //the second step "corrections" kicks in because the pre-calculation step doesnt exactly match up with what actually happens because of order of mulitplication of quaternions. this computes the error and finishes the rotation
         if (gravityChangeStep == GravityChangeSteps.initial)
         {
             InitialRotation();

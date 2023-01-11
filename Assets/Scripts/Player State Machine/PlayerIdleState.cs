@@ -14,12 +14,25 @@ public class PlayerIdleState : PlayerBaseState
     //MAY NEED TO MOVE THIS VALUE INTO PLAYER STATE MACHINE SCRIPT SO UI CAN ACCESS IT
     bool switchGravity = false; //set to true if conditions are met to flip players gravity
     bool dash = false;
+    PlayerControls playerControls;
+    Vector3 _newGravity;
 
     public override void EnterState()
     {
+        playerControls = new PlayerControls();
+
+        playerControls.PlayerMovement.Jump.performed += Jump;
+        playerControls.PlayerMovement.Jump.Enable();
+
+        playerControls.PlayerMovement.Dash.performed += Dash;
+        playerControls.PlayerMovement.Dash.Enable();
+
+        playerControls.PlayerMovement.GravityChange.performed += ChangeGravity;
+        playerControls.PlayerMovement.GravityChange.Enable();
     }
     public override void UpdateState()
     {
+        //currently checks if the player has something equpped and if it does, uses it and decreases the amount held by 1
         if (ctx._checkEquipment)
         {
             if(ctx._equipmentAmount > 0)
@@ -29,30 +42,13 @@ public class PlayerIdleState : PlayerBaseState
             }
             ctx._checkEquipment = false;
         }
-        if (ctx._checkGravitySwitch)
-        {
-            ChangeGravityCheck(ctx._newGravity);
-            ctx._checkGravitySwitch = false;
-        }
-
-        if (ctx._checkDash)
-        {
-            DashCheck();
-            ctx._checkDash = false;
-        }
 
         CheckSwitchState();
     }
 
     public override void FixedUpdateState()
     {
-        if (ctx._isJumpPressed)
-        {
-            //ctx._verticalVelocity = jumpForce;
-            ctx._rb.AddForce(ctx.jumpForce * ctx._up, ForceMode.Impulse);
-            ctx._isJumpPressed = false;
-        }
-
+        //checks if the player is inputting a movement and sets the players movement direction accordingly
         if (ctx._movementInput.magnitude != 0f)
         {
             ctx._currentMoveDir = ctx._movementInput;
@@ -67,7 +63,14 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void ExitState()
     {
+        playerControls.PlayerMovement.Jump.performed -= Jump;
+        playerControls.PlayerMovement.Jump.Disable();
 
+        playerControls.PlayerMovement.Dash.performed -= Dash;
+        playerControls.PlayerMovement.Dash.Disable();
+
+        playerControls.PlayerMovement.GravityChange.performed -= ChangeGravity;
+        playerControls.PlayerMovement.GravityChange.Disable();
     }
     public override void InitializeSubState()
     {
@@ -89,7 +92,7 @@ public class PlayerIdleState : PlayerBaseState
     void ChangeGravityCheck(Vector3 obj)
     {
         //Vector3 newGravity = new Vector3(obj.x, 0f, obj.z); //grabbing inputs
-        Vector3 newGravity = ctx._newGravity;
+        Vector3 newGravity = _newGravity;
 
         if ((newGravity.x == 0.71f || newGravity.x == -0.71f || newGravity.z == 0.71f || newGravity.z == -0.71f))
         { //this makes sure that the player didnt hit d-pad diagonally. only up, down, left, or right
@@ -151,12 +154,37 @@ public class PlayerIdleState : PlayerBaseState
         switchGravity = true;
     }
 
+    //Stop player from being able to dash multiple times in quick succession
     void DashCheck()
     {
         if(Time.time - ctx._lastDashTime >= ctx._dashCooldownTime)
         {
             dash = true;
-            
+        }
+    }
+
+    private void Jump(InputAction.CallbackContext obj)
+    {
+        if (ctx._isGrounded)
+        {
+            ctx._rb.AddForce(ctx.jumpForce * ctx._up, ForceMode.Impulse);
+        }
+    }
+
+    private void Dash(InputAction.CallbackContext obj)
+    {
+        if (obj.performed)
+        {
+            DashCheck();
+        }
+    }
+
+    private void ChangeGravity(InputAction.CallbackContext obj)
+    {
+        if (obj.performed)
+        {
+            _newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
+            ChangeGravityCheck(_newGravity);
         }
     }
 

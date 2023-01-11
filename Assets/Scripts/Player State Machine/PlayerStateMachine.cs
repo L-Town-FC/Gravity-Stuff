@@ -24,23 +24,17 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector3 _movementInput { get { return movementInput; } set { movementInput = value; } }
     public Vector3 _currentMoveInput { get { return currentMoveInput; } set { currentMoveInput = value; } }
     public Vector3 _currentMoveDir { get { return currentMoveDir; } set { currentMoveDir = value; } }
-    public Vector3 _currentCombinedMoveDir {  get { return currentCombinedMoveDir; } }
-    public bool _isJumpPressed { get { return isJumpPressed; } set { isJumpPressed = value; } }
     public bool _isGrounded { get { return isGrounded; } set { isGrounded = value; } }
 
     //Gravity
     public bool _gravityChange { get { return gravityChange; } set { gravityChange = value; } }
-    public bool _checkGravitySwitch { get { return checkGravitySwitch; } set { checkGravitySwitch = value; } }
-    public float _verticalVelocity { get { return verticalVelocity; } set { verticalVelocity = value; } }
     public float _gravityChangeCooldownTime { get { return gravityChangeCooldownTime; } }
     public float _lastGravityChangeTime { get { return lastGravityChangeTime; } set { lastGravityChangeTime = value; } }
-    public Vector3 _newGravity { get { return newGravity; } set { newGravity = value; } }
     public Vector3 _rotationAxis { get { return rotationAxis; } set { rotationAxis = value; } }
     public Vector3 _up { get { return up; } set { up = value; } }
 
     //Dash
-    public bool _checkDash { get { return checkDash; }  set { checkDash = value; } }
-    public bool _isDash { get { return isDash; } set { isDash = value; } }
+    public bool _isDash { get { return isDash; }  set { isDash = value; } }
     public float _dashCooldownTime {  get { return dashCooldownTime; } set { dashCooldownTime = value; } }
     public float _lastDashTime { get { return lastDashTime; } set { lastDashTime = value; } }
 
@@ -54,7 +48,6 @@ public class PlayerStateMachine : MonoBehaviour
     private PlayerControls playerControls;
     private InputAction movement;
     Vector3 movementInput = Vector3.zero; //holds players inputs
-    bool isJumpPressed = false;
     #endregion
 
     #region Player Componenets
@@ -67,15 +60,12 @@ public class PlayerStateMachine : MonoBehaviour
     #region Gravity Variables
     [SerializeField]
     bool gravityChange = false;
-    bool checkGravitySwitch = false;
     public float gravityForce = -12f;
     public float fallingGravityMultiplier = 6f;
     public float jumpForce = 120f;
-    float verticalVelocity = 0f; //stores the players vertical velocity due to jumping/gravity
     float gravityChangeCooldownTime = 1.25f;
     float lastGravityChangeTime = 0f;
     Vector3 up;
-    Vector3 newGravity;
     Vector3 rotationAxis;
     #endregion
 
@@ -91,13 +81,11 @@ public class PlayerStateMachine : MonoBehaviour
     public float maxVerticalVelocity = 18f;
     Vector3 currentMoveDir = Vector3.zero;
     Vector3 currentMoveInput = Vector3.zero;
-    Vector3 currentCombinedMoveDir = Vector3.zero;
     #endregion
 
     #region Dash Variables
     float dashCooldownTime = 1.25f;
     float lastDashTime = 0f;
-    bool checkDash = false;
     bool isDash = false;
     #endregion
 
@@ -185,7 +173,9 @@ public class PlayerStateMachine : MonoBehaviour
         }
 
         rb.AddForce(moveForce * transform.TransformDirection(_currentMoveDir));
+
     }
+
 
     private void OnDisable()
     {
@@ -194,36 +184,12 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     #region Input Actions
-    private void DoJump(InputAction.CallbackContext obj)
-    {
-        if (isGrounded)
-        {
-            isJumpPressed = true;
-        }
-    }
-
-    private void Dash(InputAction.CallbackContext obj)
-    {
-        if (obj.performed)
-        {
-            checkDash = true;
-        }
-    }
 
     private void UseEquipment(InputAction.CallbackContext obj)
     {
         if (obj.performed)
         {
             _checkEquipment = true;
-        }
-    }
-
-    private void ChangeGravity(InputAction.CallbackContext obj)
-    {
-        if (obj.performed)
-        {
-            checkGravitySwitch = true;
-            newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
         }
     }
 
@@ -325,15 +291,6 @@ public class PlayerStateMachine : MonoBehaviour
         movement = playerControls.PlayerMovement.Walking;
         movement.Enable();
 
-        playerControls.PlayerMovement.GravityChange.performed += ChangeGravity;
-        playerControls.PlayerMovement.GravityChange.Enable();
-
-        playerControls.PlayerMovement.Jump.performed += DoJump;
-        playerControls.PlayerMovement.Jump.Enable();
-
-        playerControls.PlayerMovement.Dash.performed += Dash;
-        playerControls.PlayerMovement.Dash.Enable();
-
         playerControls.PlayerMovement.Equipment.performed += UseEquipment;
         playerControls.PlayerMovement.Equipment.Enable();
     }
@@ -347,9 +304,6 @@ public class PlayerStateMachine : MonoBehaviour
     void DisablingPlayerControls()
     {
         movement.Disable();
-        playerControls.PlayerMovement.Jump.Disable();
-        playerControls.PlayerMovement.GravityChange.Disable();
-        playerControls.PlayerMovement.Dash.Disable();
         playerControls.PlayerMovement.Equipment.Disable();
     }
     #endregion
