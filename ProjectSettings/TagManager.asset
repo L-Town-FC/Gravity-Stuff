@@ -3,17 +3,19 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - equipment
+  - bubble shield
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Equipment
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Ground
+  - Player
+  - Bullet
   - 
   - 
   - 
