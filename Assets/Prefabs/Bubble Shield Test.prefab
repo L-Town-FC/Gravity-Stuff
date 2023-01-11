@@ -113,7 +113,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &5452319891974652889
 MonoBehaviour:
@@ -122,10 +122,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5250512725779278815}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4495c22cca0751a4aacf8eb3a6d5a20e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gravityDir: {x: 0, y: 0, z: 0}
+  trajectory: {x: 0, y: 0, z: 0}
   duration: 10
+  playerCollider: {fileID: 0}

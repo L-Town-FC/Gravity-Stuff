@@ -29,20 +29,12 @@ public class PlayerIdleState : PlayerBaseState
 
         playerControls.PlayerMovement.GravityChange.performed += ChangeGravity;
         playerControls.PlayerMovement.GravityChange.Enable();
+
+        playerControls.PlayerMovement.Equipment.performed += UseEquipment;
+        playerControls.PlayerMovement.Equipment.Enable();
     }
     public override void UpdateState()
     {
-        //currently checks if the player has something equpped and if it does, uses it and decreases the amount held by 1
-        if (ctx._checkEquipment)
-        {
-            if(ctx._equipmentAmount > 0)
-            {
-                ctx.SpawnEquipment();
-                ctx._equipmentAmount -= 1;
-            }
-            ctx._checkEquipment = false;
-        }
-
         CheckSwitchState();
     }
 
@@ -71,6 +63,9 @@ public class PlayerIdleState : PlayerBaseState
 
         playerControls.PlayerMovement.GravityChange.performed -= ChangeGravity;
         playerControls.PlayerMovement.GravityChange.Disable();
+
+        playerControls.PlayerMovement.Equipment.performed += UseEquipment;
+        playerControls.PlayerMovement.Equipment.Disable();
     }
     public override void InitializeSubState()
     {
@@ -185,6 +180,20 @@ public class PlayerIdleState : PlayerBaseState
         {
             _newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
             ChangeGravityCheck(_newGravity);
+        }
+    }
+
+    void UseEquipment(InputAction.CallbackContext obj)
+    {
+        if (obj.performed && ctx._equipmentAmount > 0)
+        {
+            ctx._equipmentAmount -= 1;
+            GameObject temp = GameObject.Instantiate(ctx._currentEquipment, ctx.transform.TransformPoint(Vector3.up), Quaternion.identity);
+            BubbleShield script = temp.GetComponent<BubbleShield>();
+            script.gravityDir = ctx._up;
+            temp.transform.up = ctx._up;
+            script.IgnorePlayer(ctx._capsuleCollider);
+            script.trajectory = ctx.transform.forward;
         }
     }
 

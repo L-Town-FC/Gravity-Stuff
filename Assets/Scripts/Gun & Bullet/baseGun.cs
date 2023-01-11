@@ -32,6 +32,8 @@ public class baseGun : MonoBehaviour
 
     Transform endOfBarrel;
     Transform playerCam;
+    Transform player;
+    Collider playerCollider;
 
     public delegate void UpdateAmmo(int currentAmmo, int maxAmmo);
     public static event UpdateAmmo ammoUpdate;
@@ -48,6 +50,10 @@ public class baseGun : MonoBehaviour
 
         //janky way of getting playerCam
         playerCam = transform.parent.parent;
+
+        player = playerCam.parent;
+
+        playerCollider = player.GetComponent<Collider>();
 
         //janky way of getting playerState machine
         playerStateMachine = playerCam.parent.GetComponent<PlayerStateMachine>();
@@ -82,6 +88,7 @@ public class baseGun : MonoBehaviour
         {
             anim.SetBool("isShooting", false);
         }
+
         //Debug.DrawRay(endOfBarrel.position, endOfBarrel.forward * 5f, Color.black);
     }
     //checks when trigger is pulled
@@ -136,6 +143,8 @@ public class baseGun : MonoBehaviour
         timeOfLastShot = Time.time;
         GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
 
+        Physics.IgnoreCollision(temp.GetComponent<Collider>(), playerCollider); //makes sure player cant shoot self if looking straight down
+
         //adjusts the bullets trajectory so it always hits what the crosshair is looking at. This needs to be done because the player forward isnt aligned with the guns forward
         Vector3 newForward;
         RaycastHit hit;
@@ -156,6 +165,12 @@ public class baseGun : MonoBehaviour
         if(ammoUpdate != null)
         {
             ammoUpdate(bulletsRemaining, clipSize);
+        }
+
+        //makes it so only one bullet is fired when in semi auto mode
+        if(fireType == FireType.semi)
+        {
+            anim.SetBool("isShooting", false);
         }
     }
 

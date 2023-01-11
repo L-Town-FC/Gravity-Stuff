@@ -133,7 +133,7 @@ PrefabInstance:
     - target: {fileID: 581350387010619807, guid: f5e8f2f63613ca94b8015deed1d91116,
         type: 3}
       propertyPath: fireType
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 880663613934106319, guid: f5e8f2f63613ca94b8015deed1d91116,
         type: 3}
@@ -2993,7 +2993,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96033f416016f244b9acbea433777932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  disableGravity: 0
+  gravityChange: 0
   gravityForce: -12
   fallingGravityMultiplier: 6
   jumpForce: 120

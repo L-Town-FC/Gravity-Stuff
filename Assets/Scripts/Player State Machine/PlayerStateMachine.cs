@@ -19,6 +19,7 @@ public class PlayerStateMachine : MonoBehaviour
     public Transform _playerCam { get { return playerCam; } set { playerCam = value; } }
     public playerCamera _playerCameraScript { get { return playerCameraScript; } set { playerCameraScript = value; } }
     public Rigidbody _rb { get { return rb; }}
+    public CapsuleCollider _capsuleCollider { get { return capsuleCollider; } }
 
     //Movement
     public Vector3 _movementInput { get { return movementInput; } set { movementInput = value; } }
@@ -39,7 +40,6 @@ public class PlayerStateMachine : MonoBehaviour
     public float _lastDashTime { get { return lastDashTime; } set { lastDashTime = value; } }
 
     //Equipment
-    public bool _checkEquipment {  get { return checkEquipment; } set { checkEquipment = value; } }
     public int _equipmentAmount { get { return equipmentAmount; } set { equipmentAmount = value; } }
     public GameObject _currentEquipment { get { return currentEquipment; } set { currentEquipment = value; } }
     #endregion
@@ -90,7 +90,6 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
 
     #region Equipment Variables
-    bool checkEquipment = false;
     int equipmentAmount = 10;
     [SerializeField]
     int teamNumber;
@@ -185,22 +184,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     #region Input Actions
 
-    private void UseEquipment(InputAction.CallbackContext obj)
-    {
-        if (obj.performed)
-        {
-            _checkEquipment = true;
-        }
-    }
-
     #endregion
-
-    public void SpawnEquipment()
-    {
-        GameObject temp = Instantiate(_currentEquipment, transform.position, Quaternion.identity);
-        temp.GetComponent<BubbleShield>().gravityDir = _up;
-        temp.transform.up = _up;
-    }
 
     static Vector3[] GetLowerBounds(Vector3 center, float radius)
     {
@@ -290,9 +274,6 @@ public class PlayerStateMachine : MonoBehaviour
     {
         movement = playerControls.PlayerMovement.Walking;
         movement.Enable();
-
-        playerControls.PlayerMovement.Equipment.performed += UseEquipment;
-        playerControls.PlayerMovement.Equipment.Enable();
     }
 
     void GettingPlayerInputs()
@@ -304,7 +285,6 @@ public class PlayerStateMachine : MonoBehaviour
     void DisablingPlayerControls()
     {
         movement.Disable();
-        playerControls.PlayerMovement.Equipment.Disable();
     }
     #endregion
 }
