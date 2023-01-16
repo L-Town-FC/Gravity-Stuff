@@ -130,4 +130,6 @@ MonoBehaviour:
   gravityDir: {x: 0, y: 0, z: 0}
   trajectory: {x: 0, y: 0, z: 0}
   duration: 10
-  playerCollider: {fileID: 0}
+  bubbleShieldMaterial: {fileID: 2100000, guid: 9104467a7551c084cb1e7198726c62ee,
+    type: 2}
+  initialMaterial: {fileID: 2100000, guid: 6d194ed9f5363f9498214fcb29c01dd2, type: 2}
