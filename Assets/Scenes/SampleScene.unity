@@ -293,7 +293,6 @@ GameObject:
   m_Component:
   - component: {fileID: 193066028}
   - component: {fileID: 193066029}
-  - component: {fileID: 193066030}
   m_Layer: 5
   m_Name: GravityCoolDown
   m_TagString: Untagged
@@ -375,20 +374,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &193066030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 193066027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02528476de2e7724db015bf5a6528b3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 2084556575}
-  cooldownSlider: {fileID: 193066029}
 --- !u!1 &231912147
 GameObject:
   m_ObjectHideFlags: 0
@@ -720,6 +705,8 @@ MonoBehaviour:
   player: {fileID: 2084556575}
   ammoText: {fileID: 231912148}
   currentGun: {fileID: 0}
+  gravitySlider: {fileID: 193066029}
+  dashSlider: {fileID: 1179359372}
 --- !u!1 &276334491
 GameObject:
   m_ObjectHideFlags: 0
@@ -2366,8 +2353,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1179359370}
   - component: {fileID: 1179359372}
-  - component: {fileID: 1179359371}
-  - component: {fileID: 1179359373}
   m_Layer: 5
   m_Name: Dash Cooldown
   m_TagString: Untagged
@@ -2398,20 +2383,6 @@ RectTransform:
   m_AnchoredPosition: {x: 25, y: 100}
   m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1179359371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1179359369}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02528476de2e7724db015bf5a6528b3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 2084556575}
-  cooldownSlider: {fileID: 1179359372}
 --- !u!114 &1179359372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2463,20 +2434,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1179359373
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1179359369}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8157641473500784b8fc1e28de93e77f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 2084556575}
-  cooldownSlider: {fileID: 1179359372}
 --- !u!1 &1386096175
 GameObject:
   m_ObjectHideFlags: 0
@@ -2960,7 +2917,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2084556575}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.6, y: 14.93, z: -1.1}
+  m_LocalPosition: {x: 23.49, y: 14.93, z: -1.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

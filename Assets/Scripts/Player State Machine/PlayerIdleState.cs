@@ -5,13 +5,9 @@ using UnityEngine.InputSystem;
 
 public class PlayerIdleState : PlayerBaseState
 {
-    //TODO: Move input action stuff into this script from the state machine script so I dont have to deal with all these different variables
-    //May be harder than I thought
-
     public PlayerIdleState(PlayerStateMachine currentContext, PlayerStateFactory playerStateFactory) 
     :base (currentContext, playerStateFactory){ }
 
-    //MAY NEED TO MOVE THIS VALUE INTO PLAYER STATE MACHINE SCRIPT SO UI CAN ACCESS IT
     bool switchGravity = false; //set to true if conditions are met to flip players gravity
     bool dash = false;
     PlayerControls playerControls;
@@ -190,10 +186,8 @@ public class PlayerIdleState : PlayerBaseState
             ctx._equipmentAmount -= 1;
             GameObject temp = GameObject.Instantiate(ctx._currentEquipment, ctx.transform.TransformPoint(Vector3.up), Quaternion.identity);
             BubbleShield script = temp.GetComponent<BubbleShield>();
-            script.gravityDir = ctx._up;
-            temp.transform.up = ctx._up;
-            script.IgnorePlayer(ctx._capsuleCollider);
-            script.trajectory = ctx.transform.forward;
+            script.gravityDir = temp.transform.up = ctx._up;
+            script.trajectory = ctx._playerCam.forward;
         }
     }
 

@@ -97,12 +97,6 @@ public class PlayerStateMachine : MonoBehaviour
     GameObject currentEquipment;
     #endregion
 
-    public delegate void GravityChange(float currentTime);
-    public static event GravityChange gravityChanged;
-
-    public delegate void DashEvent(float currentTime);
-    public static event DashEvent dashed;
-
     private void Awake()
     {
         states = new PlayerStateFactory(this);
@@ -124,17 +118,6 @@ public class PlayerStateMachine : MonoBehaviour
     {
         GettingPlayerInputs();
         currentState.UpdateState();
-        if(gravityChange)
-        {
-            gravityChanged(Time.time);
-            gravityChange = false;
-        }
-
-        if (isDash)
-        {
-            dashed(Time.time);
-            isDash = false;
-        }
 
         if (_isGrounded)
         {
