@@ -25,6 +25,12 @@ public class BlackHole : MonoBehaviour
             //use magnitude squared as it is a less intensive equation than magnitude
             //also the distance would have to be squared anyways for the gravity equation
 
+            if(gravityBoundObject.Value == null)
+            {
+                keyValuePairs.Remove(gravityBoundObject.Key);
+                return;
+            }
+
             Vector3 objectPos = gravityBoundObject.Value.position; //this value is used twice so I save the value instead of asking for the value twice from the rigid body
             float distanceSquared = (center - objectPos).sqrMagnitude;
             gravityBoundObject.Value.AddForce((center - objectPos) * (baseGravitationalForce/distanceSquared));
@@ -34,10 +40,7 @@ public class BlackHole : MonoBehaviour
     //adds any objects entering the black holes volume into a list that will be updated later
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag != "equipment")
-        {
-            keyValuePairs.Add(other.attachedRigidbody.GetInstanceID(), other.attachedRigidbody);
-        }
+        keyValuePairs.Add(other.attachedRigidbody.GetInstanceID(), other.attachedRigidbody);   
     }
 
     //removed objects that leave the black holes volume as they are no longer bound by it

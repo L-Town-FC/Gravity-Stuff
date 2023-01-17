@@ -36,8 +36,8 @@ public class playerUI : MonoBehaviour
     {
         playerStateMachine = player.GetComponent<PlayerStateMachine>();
 
-        gravityCooldown = new Cooldown(playerStateMachine._gravityChangeCooldownTime, playerStateMachine._lastGravityChangeTime, gravitySlider);
-        dashCooldown = new Cooldown(playerStateMachine._dashCooldownTime, playerStateMachine._lastDashTime, dashSlider);
+        gravityCooldown = new Cooldown(gravitySlider);
+        dashCooldown = new Cooldown(dashSlider);
     }
 
     // Start is called before the first frame update
@@ -51,16 +51,27 @@ public class playerUI : MonoBehaviour
     {
         gravityCooldown.UpdateSlider(playerStateMachine._gravityChangeCooldownTime ,playerStateMachine._lastGravityChangeTime);
         dashCooldown.UpdateSlider(playerStateMachine._dashCooldownTime, playerStateMachine._lastDashTime);
+        
     }
 
     void UpdateAmmoCount(int currentAmmo, int maxAmmo)
     {
         ammoText.text = currentAmmo + "/" + maxAmmo;
     }
+}
 
-    void UpdateCooldowns()
+public class Cooldown
+{
+    public Slider slider; //reference to desired slider
+
+    public Cooldown(Slider _slider)
     {
+        slider = _slider;
+    }
 
+    public void UpdateSlider(float _cooldownTime, float _lastUse)
+    {
+        slider.value = Mathf.InverseLerp(_lastUse, _lastUse + _cooldownTime, Time.time);
     }
 }
 
