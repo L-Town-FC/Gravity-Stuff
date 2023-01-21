@@ -119,13 +119,14 @@ public class PlayerStateMachine : MonoBehaviour
         GettingPlayerInputs();
         currentState.UpdateState();
 
+        //player has more control on the ground than in the air
         if (_isGrounded)
         {
-            _rb.drag = 5f;
+            _rb.drag = 3f;
         }
         else
         {
-            _rb.drag = 3f;
+            _rb.drag = 0.5f;
         }
 
         _rb.velocity = maxVelocitySetter(maxNonVerticalVelocity, maxVerticalVelocity, _rb.velocity, _up);

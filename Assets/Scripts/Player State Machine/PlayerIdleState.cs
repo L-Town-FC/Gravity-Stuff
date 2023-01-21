@@ -185,9 +185,11 @@ public class PlayerIdleState : PlayerBaseState
         {
             ctx._equipmentAmount -= 1;
             GameObject temp = GameObject.Instantiate(ctx._currentEquipment, ctx.transform.TransformPoint(Vector3.up), Quaternion.identity);
-            BubbleShield script = temp.GetComponent<BubbleShield>();
-            script.gravityDir = temp.transform.up = ctx._up;
-            script.trajectory = ctx._playerCam.forward;
+            Physics.IgnoreCollision(ctx._capsuleCollider, temp.GetComponent<Collider>());
+            BaseEquipment baseEquipment = temp.GetComponent<BaseEquipment>();
+            baseEquipment.gravityDir = - ctx._up;
+            baseEquipment.trajectory = ctx._playerCam.forward;
+
         }
     }
 

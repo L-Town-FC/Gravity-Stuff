@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(BaseEquipment))]
 public class BubbleShield : MonoBehaviour
 {
     Rigidbody rb;
+    BaseEquipment baseEquipment;
     public Vector3 gravityDir;
     public Vector3 trajectory;
+    float gravityForce;
     float maxSize = 10f;
     float sizeChangeRate = 0.1f;
     [SerializeField]
@@ -26,11 +29,16 @@ public class BubbleShield : MonoBehaviour
         rb.maxAngularVelocity = 0f;
         Destroy(this.gameObject, duration);
         transform.GetComponent<Renderer>().material = initialMaterial;
+        baseEquipment = GetComponent<BaseEquipment>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        gravityDir = baseEquipment.gravityDir;
+        trajectory = baseEquipment.trajectory;
+        gravityForce = baseEquipment.gravityForce;
+
         rb.AddForce(trajectory.normalized * 30f, ForceMode.Impulse);
         transform.localScale = Vector3.one * initialSize;
         
@@ -60,7 +68,7 @@ public class BubbleShield : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.AddForce(-gravityDir.normalized * 50f);
+        rb.AddForce(gravityDir.normalized * gravityForce);
     }
 
 

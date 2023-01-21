@@ -4,15 +4,9 @@ using UnityEngine;
 
 public class BaseEquipment : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    //these will be the same for every equipment that is created so this class is required for all created equipments
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public Vector3 gravityDir = new Vector3();
+    public Vector3 trajectory = new Vector3();
+    public float gravityForce = 50f;
 }
