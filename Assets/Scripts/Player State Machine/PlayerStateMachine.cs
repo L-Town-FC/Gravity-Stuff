@@ -90,7 +90,8 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
 
     #region Equipment Variables
-    int equipmentAmount = 10;
+    [SerializeField]
+    int equipmentAmount = 100;
     [SerializeField]
     int teamNumber;
     [SerializeField]

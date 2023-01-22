@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 [RequireComponent(typeof(BaseEquipment))]
 public class ForceGrenade : MonoBehaviour
@@ -8,10 +9,11 @@ public class ForceGrenade : MonoBehaviour
     Vector3 gravityDir;
     Vector3 trajectory;
     float gravityForce;
-    float forceRadius = 15f;
+    float forceRadius = 5f;
     float force = 100f;
     Rigidbody rb;
     LayerMask layerMask = new LayerMask();
+    VisualEffect pulse;
 
     BaseEquipment baseEquipment; //class that carries variables that all equipment will use to keep stuff consistent and easy to manage
 
@@ -20,6 +22,7 @@ public class ForceGrenade : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         layerMask.value = LayerMask.GetMask("Ground");
         baseEquipment = GetComponent<BaseEquipment>();
+        pulse = GetComponent<VisualEffect>();
     }
 
     // Start is called before the first frame update
@@ -75,6 +78,11 @@ public class ForceGrenade : MonoBehaviour
             collider.attachedRigidbody.AddForce(force * dir, ForceMode.Impulse);
         }
 
-        Destroy(transform.gameObject); //change this to wait for visual effect to complete
+        transform.GetComponent<MeshRenderer>().enabled = false;
+        transform.GetComponent<Collider>().enabled = false;
+
+        pulse.Play(); //play the vfx
+
+        Destroy(transform.gameObject, 0.21f); //change this to wait for visual effect to complete
     }
 }
