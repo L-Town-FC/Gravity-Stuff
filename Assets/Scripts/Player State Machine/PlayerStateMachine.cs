@@ -31,6 +31,7 @@ public class PlayerStateMachine : MonoBehaviour
     public bool _gravityChange { get { return gravityChange; } set { gravityChange = value; } }
     public float _gravityChangeCooldownTime { get { return gravityChangeCooldownTime; } }
     public float _lastGravityChangeTime { get { return lastGravityChangeTime; } set { lastGravityChangeTime = value; } }
+    public float _jumpForce { get { return jumpForce; } set { jumpForce = value; } }
     public Vector3 _rotationAxis { get { return rotationAxis; } set { rotationAxis = value; } }
     public Vector3 _up { get { return up; } set { up = value; } }
 
@@ -60,9 +61,9 @@ public class PlayerStateMachine : MonoBehaviour
     #region Gravity Variables
     [SerializeField]
     bool gravityChange = false;
-    public float gravityForce = -12f;
-    public float fallingGravityMultiplier = 6f;
-    public float jumpForce = 120f;
+    float gravityForce = -30f;
+    float fallingGravityMultiplier = 2f;
+    float jumpForce = 60f;
     float gravityChangeCooldownTime = 1.25f;
     float lastGravityChangeTime = 0f;
     Vector3 up;
@@ -76,9 +77,10 @@ public class PlayerStateMachine : MonoBehaviour
     #endregion
 
     #region Movement Variables
-    public float moveForce = 400f;
+    public float moveForce = 200f;
     public float maxNonVerticalVelocity = 6f;
     public float maxVerticalVelocity = 18f;
+    float airSpeedReduction = 0.5f;
     Vector3 currentMoveDir = Vector3.zero;
     Vector3 currentMoveInput = Vector3.zero;
     #endregion
@@ -123,11 +125,11 @@ public class PlayerStateMachine : MonoBehaviour
         //player has more control on the ground than in the air
         if (_isGrounded)
         {
-            _rb.drag = 3f;
+            _rb.drag = 5f;
         }
         else
         {
-            _rb.drag = 0.5f;
+            _rb.drag = 0.75f;
         }
 
         _rb.velocity = maxVelocitySetter(maxNonVerticalVelocity, maxVerticalVelocity, _rb.velocity, _up);
@@ -142,10 +144,13 @@ public class PlayerStateMachine : MonoBehaviour
 
         if (_isGrounded)
         {
-            rb.AddForce(_up * -10f);
+            //rb.AddForce(_up * -10f);
         }
         else
         {
+            //checks if the player is currently falling by comparing their velocity with their current up
+            //if they aligned or equal they are not falling
+            //if they are falling then increase gravity to make them seem less floaty
             if (Vector3.Dot(rb.velocity, _up) < 0f)
             {
                 rb.AddForce(_up * gravityForce * fallingGravityMultiplier);
@@ -224,12 +229,12 @@ public class PlayerStateMachine : MonoBehaviour
         y = fallDirChecker(currentUP, Vector3.up, y, maxNonVerticalVelocity, maxVerticalVelocity);
         z = fallDirChecker(currentUP, Vector3.forward, z, maxNonVerticalVelocity, maxVerticalVelocity);
 
-        return new Vector3(x, y, z);
+        return new Vector3(x,y,z);
     }
 
     //uses the dot product to compare the current up with a unit vector
     //if the dot product is zero, i.e. the unit vector is not aligned with the current up, its clamped with the maxNonVerticalVelocity
-    //if the dot prodcut is 1 then the current up is parallel with the unit vector meaning we are looking at the "up" component of the players velocity and it is clamped using the maxVerticalVelocity value
+    //if the dot prodcut is 1 then the current up is parallel with the unit vector meaning we are looking at the "up" component of the players velocity and it is clamped using the maxverticalvelocity value
     static float fallDirChecker(Vector3 currentUp, Vector3 velocityVector, float currentVelocity, float maxNonVerticalVelocity, float maxVerticalVelocity)
     {
         if(Mathf.Abs(Vector3.Dot(currentUp, velocityVector)) > 0f)
@@ -239,6 +244,11 @@ public class PlayerStateMachine : MonoBehaviour
         else
         {
             currentVelocity = Mathf.Clamp(currentVelocity, -maxNonVerticalVelocity, maxNonVerticalVelocity);
+            //tired of rb.velocity being 10^-8 and not zero
+            if (Mathf.Abs(currentVelocity) - 0.0001f < 0)
+            {
+                currentVelocity = 0;
+            }
         }
 
         return currentVelocity;
@@ -265,6 +275,10 @@ public class PlayerStateMachine : MonoBehaviour
     {
         movementInput = new Vector3(movement.ReadValue<Vector2>().x, 0f, movement.ReadValue<Vector2>().y);
         _isGrounded = GroundCheck(localLowerBounds, capsuleCollider.radius, -transform.up, transform);
+        if (!_isGrounded)
+        {
+            movementInput *= airSpeedReduction;
+        }
     }
 
     void DisablingPlayerControls()

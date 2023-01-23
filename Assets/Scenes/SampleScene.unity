@@ -2922,7 +2922,7 @@ Rigidbody:
   m_GameObject: {fileID: 2084556575}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 10
+  m_Drag: 5
   m_AngularDrag: 0
   m_UseGravity: 0
   m_IsKinematic: 0
@@ -3001,7 +3001,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2084556575}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.49, y: 14.93, z: -1.1}
+  m_LocalPosition: {x: 23.49, y: 0.59, z: -1.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3016,7 +3016,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2084556575}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6558489e502ff4280a675342178da1, type: 3}
   m_Name: 
@@ -3035,12 +3035,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gravityChange: 0
-  gravityForce: -12
-  fallingGravityMultiplier: 6
-  jumpForce: 120
   moveForce: 400
   maxNonVerticalVelocity: 6
   maxVerticalVelocity: 18
+  equipmentAmount: 100
   teamNumber: 0
   currentEquipment: {fileID: 1036147601632442245, guid: 236d4d6e56b1c8649bef0f129965c72e,
     type: 3}

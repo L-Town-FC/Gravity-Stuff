@@ -158,7 +158,7 @@ public class PlayerIdleState : PlayerBaseState
     {
         if (ctx._isGrounded)
         {
-            ctx._rb.AddForce(ctx.jumpForce * ctx._up, ForceMode.Impulse);
+            ctx._rb.AddForce(ctx._jumpForce * ctx._up, ForceMode.Impulse);
         }
     }
 
