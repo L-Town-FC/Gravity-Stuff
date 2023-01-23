@@ -15,7 +15,8 @@ public class baseBullet : MonoBehaviour
     protected float bulletAccel;
     [SerializeField]
     protected float bulletSize = 0.5f;
-    float bulletLife = 3f;
+    float bulletLife = 5f;
+    float bulletShrinkTime = 4f;
     float startTime;
     bool shrinkTrail = false;
     GradientColorKey[] gradientColorKeys;
@@ -66,6 +67,11 @@ public class baseBullet : MonoBehaviour
             Destroy(transform.gameObject);
         }
 
+        if(Time.time - startTime > bulletShrinkTime)
+        {
+            shrinkTrail = true;
+        }
+
         if(shrinkTrail)
         {
             ShrinkTrail();
@@ -74,7 +80,7 @@ public class baseBullet : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.transform.tag == "bubble shield")
+        if (collision.transform.tag == "bubble shield") //lets bullets bounce off bubble shield. it looks cool so im keeping it
         {
             return;
         }

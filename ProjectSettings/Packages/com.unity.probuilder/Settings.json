@@ -104,6 +104,11 @@
                 "value": "{\"m_Value\":1}"
             },
             {
+                "type": "UnityEngine.ProBuilder.SelectMode, Unity.ProBuilder, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "key": "editor.lastMeshSelectMode",
+                "value": "{\"m_Value\":1}"
+            },
+            {
                 "type": "System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
                 "key": "ShapeBuilder.ActiveShapeIndex",
                 "value": "{\"m_Value\":2}"
@@ -126,7 +131,7 @@
             {
                 "type": "UnityEngine.Vector3, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "ShapeBuilder.LastSize",
-                "value": "{\"m_Value\":{\"x\":-36.37433624267578,\"y\":23.20868682861328,\"z\":43.40654754638672}}"
+                "value": "{\"m_Value\":{\"x\":11.070323944091797,\"y\":20.475421905517579,\"z\":-2.170867919921875}}"
             },
             {
                 "type": "UnityEngine.Quaternion, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -162,6 +167,11 @@
                 "type": "UnityEngine.ProBuilder.Shapes.Shape, Unity.ProBuilder, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "ShapeBuilder.Cube",
                 "value": "{}"
+            },
+            {
+                "type": "UnityEditor.ProBuilder.Actions.MirrorObjects+MirrorSettings, Unity.ProBuilder.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "key": "MirrorObjects.mirrorAxes",
+                "value": "{\"m_Value\":1}"
             }
         ]
     }

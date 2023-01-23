@@ -10,7 +10,8 @@ public class ForceGrenade : MonoBehaviour
     Vector3 trajectory;
     float gravityForce;
     float forceRadius = 5f;
-    float force = 100f;
+    [SerializeField]
+    float force = 75f; //may want to also set players air drag lower for a small window after affected by this
     Rigidbody rb;
     LayerMask layerMask = new LayerMask();
     VisualEffect pulse;
@@ -78,11 +79,12 @@ public class ForceGrenade : MonoBehaviour
             collider.attachedRigidbody.AddForce(force * dir, ForceMode.Impulse);
         }
 
+        //disables collider and mesh so it cant be seen after exlposion
         transform.GetComponent<MeshRenderer>().enabled = false;
         transform.GetComponent<Collider>().enabled = false;
 
         pulse.Play(); //play the vfx
 
-        Destroy(transform.gameObject, 0.21f); //change this to wait for visual effect to complete
+        Destroy(transform.gameObject, 0.21f); //0.21s is slightly longer than the vfx plays for
     }
 }

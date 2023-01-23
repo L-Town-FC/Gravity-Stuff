@@ -3016,7 +3016,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2084556575}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6558489e502ff4280a675342178da1, type: 3}
   m_Name: 
@@ -3040,7 +3040,7 @@ MonoBehaviour:
   maxVerticalVelocity: 18
   equipmentAmount: 100
   teamNumber: 0
-  currentEquipment: {fileID: 1036147601632442245, guid: 236d4d6e56b1c8649bef0f129965c72e,
+  currentEquipment: {fileID: 5250512725779278815, guid: 3172738750dd7c24ca8bf5e58ddce65d,
     type: 3}
 --- !u!1 &2137879936
 GameObject:
