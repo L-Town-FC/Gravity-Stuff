@@ -4,19 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class playerUI : MonoBehaviour
+public class PlayerUI : MonoBehaviour
 {
-    [SerializeField]
-    GameObject player;
+    public GameObject player; //set this when spawning UI
+
     PlayerStateMachine playerStateMachine;
 
-    [SerializeField]
     TMP_Text ammoText;
-    [SerializeField]
-    GameObject currentGun;
-    [SerializeField]
     Slider gravitySlider;
-    [SerializeField]
     Slider dashSlider;
 
     Cooldown gravityCooldown;
@@ -34,16 +29,19 @@ public class playerUI : MonoBehaviour
 
     private void Awake()
     {
-        playerStateMachine = player.GetComponent<PlayerStateMachine>();
-
-        gravityCooldown = new Cooldown(gravitySlider);
-        dashCooldown = new Cooldown(dashSlider);
+        ammoText = transform.Find("AmmoCount").Find("ClipSize").GetComponent<TMP_Text>();
+        gravitySlider = transform.Find("Cooldowns").Find("GravityCooldown").GetComponent<Slider>();
+        dashSlider = transform.Find("Cooldowns").Find("DashCooldown").GetComponent<Slider>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        //this needs to be called in start instead of awake because of how the player variable is set AFTER its instantiated
+        playerStateMachine = player.GetComponent<PlayerStateMachine>();
+
+        gravityCooldown = new Cooldown(gravitySlider);
+        dashCooldown = new Cooldown(dashSlider);
     }
 
     // Update is called once per frame

@@ -11,6 +11,8 @@ public class PlayerStateMachine : MonoBehaviour
     //state variables
     PlayerBaseState currentState;
     PlayerStateFactory states;
+    [SerializeField]
+    GameObject PlayerUI;
 
     #region Getters and Setters
     //Components
@@ -108,6 +110,12 @@ public class PlayerStateMachine : MonoBehaviour
         up = transform.up;
         playerCam = transform.GetChild(0);
         playerCameraScript = GetComponent<playerCamera>();
+
+        //Creates UI for Player. Will probably move into separate function
+        GameObject temp = Instantiate(PlayerUI);
+        temp.GetComponent<PlayerUI>().player = transform.gameObject;
+        temp.SetActive(true);
+
         SettingInitialPlayerConditions();
     }
 
