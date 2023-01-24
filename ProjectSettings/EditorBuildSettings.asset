@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/First Map Attempt.unity
+    guid: 769f820a57323b34fb9dc8e8d9f50669
   m_configObjects: {}

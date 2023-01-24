@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class PlayerStateMachine : MonoBehaviour
+public class PlayerStateMachine : NetworkBehaviour
 {
     //TODO: Make base equipment class that so they all have standard naming conventions that can be used
 
@@ -127,6 +128,10 @@ public class PlayerStateMachine : MonoBehaviour
     //grab inputs in update
     private void Update()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
         GettingPlayerInputs();
         currentState.UpdateState();
 
@@ -148,6 +153,11 @@ public class PlayerStateMachine : MonoBehaviour
     //apply inputs to components in fixed update
     private void FixedUpdate()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
         currentState.FixedUpdateState();
 
         if (_isGrounded)
