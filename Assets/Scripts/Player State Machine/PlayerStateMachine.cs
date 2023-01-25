@@ -105,6 +105,8 @@ public class PlayerStateMachine : NetworkBehaviour
 
     private void Awake()
     {
+        
+
         states = new PlayerStateFactory(this);
         currentState = states.Idle();
         currentState.EnterState();
