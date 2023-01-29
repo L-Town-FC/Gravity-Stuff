@@ -2,11 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
+using Cinemachine;
 
-public class playerCamera : MonoBehaviour
+public class playerCamera : NetworkBehaviour
 {
     private PlayerControls playerControls;
     private InputAction cameraMovement;
+    Camera virtualCam;
 
     Rigidbody rb;
     Transform playerCam;
@@ -34,6 +37,19 @@ public class playerCamera : MonoBehaviour
     private void OnDisable()
     {
         cameraMovement.Disable();
+    }
+
+    private void Start()
+    {
+        //Gives the player a unique camera
+        if(IsClient && IsOwner)
+        {
+            virtualCam = FindObjectOfType<Camera>();
+            print(virtualCam);
+            virtualCam.transform.GetComponent<CinemachineVirtualCamera>().Follow = transform.GetChild(0);
+        }
+
+        transform.GetChild(0).position = Vector3.zero;
     }
 
     private void Update()
