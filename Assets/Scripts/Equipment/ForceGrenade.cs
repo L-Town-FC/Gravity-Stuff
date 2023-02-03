@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
-[RequireComponent(typeof(BaseEquipment))]
-public class ForceGrenade : MonoBehaviour
+public class ForceGrenade : MonoBehaviour, IEquipment
 {
     Vector3 gravityDir;
     Vector3 trajectory;
@@ -16,22 +15,16 @@ public class ForceGrenade : MonoBehaviour
     LayerMask layerMask = new LayerMask();
     VisualEffect pulse;
 
-    BaseEquipment baseEquipment; //class that carries variables that all equipment will use to keep stuff consistent and easy to manage
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         layerMask.value = LayerMask.GetMask("Ground");
-        baseEquipment = GetComponent<BaseEquipment>();
         pulse = GetComponent<VisualEffect>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        gravityDir = baseEquipment.gravityDir;
-        trajectory = baseEquipment.trajectory;
-        gravityForce = baseEquipment.gravityForce;
 
         if(gravityDir == Vector3.zero)
         {
@@ -50,6 +43,17 @@ public class ForceGrenade : MonoBehaviour
     private void FixedUpdate()
     {
         rb.AddForce(gravityDir * gravityForce);
+    }
+
+    public void Gravity(float _gravity, Vector3 _gravityDir)
+    {
+        gravityForce = _gravity;
+        gravityDir = _gravityDir;
+    }
+
+    public void Trajectory(Vector3 _trajectory)
+    {
+        trajectory = _trajectory;
     }
 
     private void OnCollisionEnter(Collision collision)

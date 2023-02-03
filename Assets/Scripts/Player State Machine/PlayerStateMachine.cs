@@ -35,6 +35,7 @@ public class PlayerStateMachine : NetworkBehaviour
     public float _gravityChangeCooldownTime { get { return gravityChangeCooldownTime; } }
     public float _lastGravityChangeTime { get { return lastGravityChangeTime; } set { lastGravityChangeTime = value; } }
     public float _jumpForce { get { return jumpForce; } set { jumpForce = value; } }
+    public float _gravityForce { get { return gravityForce; } }
     public Vector3 _rotationAxis { get { return rotationAxis; } set { rotationAxis = value; } }
     public Vector3 _up { get { return up; } set { up = value; } }
 

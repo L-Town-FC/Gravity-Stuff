@@ -207,10 +207,9 @@ public class PlayerIdleState : PlayerBaseState
             ctx._equipmentAmount -= 1;
             GameObject temp = GameObject.Instantiate(ctx._currentEquipment, ctx.transform.TransformPoint(Vector3.up), Quaternion.identity);
             Physics.IgnoreCollision(ctx._capsuleCollider, temp.GetComponent<Collider>());
-            BaseEquipment baseEquipment = temp.GetComponent<BaseEquipment>();
-            baseEquipment.gravityDir = - ctx._up;
-            baseEquipment.trajectory = ctx._playerCam.forward;
 
+            temp.GetComponent<IEquipment>().Gravity(ctx._gravityForce, ctx._up);
+            temp.GetComponent<IEquipment>().Trajectory(ctx._playerCam.forward);
         }
     }
 
