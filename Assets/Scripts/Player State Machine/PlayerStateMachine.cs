@@ -7,8 +7,6 @@ using Unity.Netcode;
 
 public class PlayerStateMachine : NetworkBehaviour
 {
-    //TODO: Make base equipment class that so they all have standard naming conventions that can be used
-
     //state variables
     PlayerBaseState currentState;
     PlayerStateFactory states;
@@ -106,8 +104,6 @@ public class PlayerStateMachine : NetworkBehaviour
 
     private void Awake()
     {
-        
-
         states = new PlayerStateFactory(this);
         currentState = states.Idle();
         currentState.EnterState();
