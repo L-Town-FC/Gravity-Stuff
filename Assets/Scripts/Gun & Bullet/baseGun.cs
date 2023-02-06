@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class baseGun : MonoBehaviour
+public class baseGun : NetworkBehaviour
 {
     //TODO: Make it so shooting is disabled during other actions
     protected int clipSize = 30;
@@ -142,7 +143,7 @@ public class baseGun : MonoBehaviour
     {
         timeOfLastShot = Time.time;
         GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
-
+        temp.GetComponent<Rigidbody>().isKinematic = false;
         Physics.IgnoreCollision(temp.GetComponent<Collider>(), playerCollider); //makes sure player cant shoot self if looking straight down
 
         //adjusts the bullets trajectory so it always hits what the crosshair is looking at. This needs to be done because the player forward isnt aligned with the guns forward

@@ -51,7 +51,7 @@ public class playerCamera : NetworkBehaviour
 
         virtualCam = FindObjectOfType<Camera>();
         virtualCam.transform.GetComponent<CinemachineVirtualCamera>().Follow = transform.GetChild(0);
-        transform.GetChild(0).position = Vector3.zero;
+        transform.GetChild(0).position = new Vector3(0, 0.5f, 0);
         
 
     }
