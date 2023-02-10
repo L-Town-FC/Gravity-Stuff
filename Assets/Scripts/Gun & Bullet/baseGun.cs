@@ -36,6 +36,7 @@ public class baseGun : NetworkBehaviour
     Transform player;
     Collider playerCollider;
 
+    //probably need to change this to non-static
     public delegate void UpdateAmmo(int currentAmmo, int maxAmmo);
     public static event UpdateAmmo ammoUpdate;
 
@@ -73,6 +74,11 @@ public class baseGun : NetworkBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
         //simplest way i could think of stopping shooting while flipping gravity. will probably need to be changed later
         //the player can only shoot in the idle state right now. Design choice to make it so there isn't too much going on at once
         if(playerStateMachine._currentState.ToString() != playerStateMachine._states.Idle().ToString())
@@ -95,6 +101,11 @@ public class baseGun : NetworkBehaviour
     //checks when trigger is pulled
     void Shoot(InputAction.CallbackContext obj)
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
         //player can shoot when the trigger is pushed down
         if (obj.performed)
         {
@@ -112,6 +123,11 @@ public class baseGun : NetworkBehaviour
     //checks if reload button has been pushed
     void Reload(InputAction.CallbackContext obj)
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
         if (obj.performed && bulletsRemaining != clipSize)
         {
             anim.SetBool("isReloading", true);
@@ -132,6 +148,10 @@ public class baseGun : NetworkBehaviour
 
     void ReloadSound()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
         audioSource.Stop();
         audioSource.pitch = 2f;
         audioSource.clip = reloadSound;
@@ -177,11 +197,19 @@ public class baseGun : NetworkBehaviour
 
     void AddRecoil()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
         playerCam.localEulerAngles -= new Vector3(recoilPerShot, 0f, 0f);
     }
 
     void ShootingSound()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
         //https://sfxr.me/ good site
         audioSource.clip = shootSound;
         audioSource.pitch = 0.25f;
