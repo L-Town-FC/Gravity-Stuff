@@ -144,13 +144,15 @@ public class baseGun : NetworkBehaviour
         audioSource.Play();
     }
 
+    [ServerRpc]
     //spawns a bullet at the end of the barrel and fires it
-    void SpawnBullet()
+    void SpawnBulletServerRpc()
     {
         timeOfLastShot = Time.time;
         GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
         temp.GetComponent<Rigidbody>().isKinematic = false;
         Physics.IgnoreCollision(temp.GetComponent<Collider>(), playerCollider); //makes sure player cant shoot self if looking straight down
+        temp.GetComponent<NetworkObject>().Spawn();
 
         //adjusts the bullets trajectory so it always hits what the crosshair is looking at. This needs to be done because the player forward isnt aligned with the guns forward
         Vector3 newForward;

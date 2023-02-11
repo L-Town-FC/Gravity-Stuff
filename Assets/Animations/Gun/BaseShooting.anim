@@ -357,7 +357,7 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0
-    functionName: SpawnBullet
+    functionName: SpawnBulletServerRpc
     data: 
     objectReferenceParameter: {fileID: 11500000, guid: 240b5c34f7e001d489430fe13f6d35e0,
       type: 3}

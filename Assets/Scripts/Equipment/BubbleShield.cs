@@ -33,6 +33,8 @@ public class BubbleShield : MonoBehaviour, IEquipment
     // Start is called before the first frame update
     void Start()
     {
+        rb.isKinematic = false;
+
         rb.AddForce(trajectory.normalized * 30f, ForceMode.Impulse);
         transform.localScale = Vector3.one * initialSize;
         

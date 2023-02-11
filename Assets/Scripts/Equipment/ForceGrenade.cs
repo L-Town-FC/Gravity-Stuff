@@ -25,6 +25,7 @@ public class ForceGrenade : MonoBehaviour, IEquipment
     // Start is called before the first frame update
     void Start()
     {
+        rb.isKinematic = false;
 
         if(gravityDir == Vector3.zero)
         {

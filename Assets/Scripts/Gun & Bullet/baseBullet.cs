@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
-
-public class baseBullet : MonoBehaviour
+using Unity.Netcode;
+public class baseBullet : NetworkBehaviour
 {
     Rigidbody rb;
     Collider bulletCollider;
@@ -36,6 +36,7 @@ public class baseBullet : MonoBehaviour
         collidersAtSpawn = Physics.OverlapSphere(transform.position, 0.01f);
         IgnoreCollision();
 
+        
     }
 
     // Start is called before the first frame update
@@ -64,7 +65,7 @@ public class baseBullet : MonoBehaviour
         collisionPoint = hit.point;
         if(Time.time - startTime > bulletLife)
         {
-            Destroy(transform.gameObject);
+            DestroyBulletServerRpc();
         }
 
         if(Time.time - startTime > bulletShrinkTime)
@@ -100,9 +101,22 @@ public class baseBullet : MonoBehaviour
         shrinkTrail = true;
 
         //1 second was chosen arbitrarily. I didnt want the object sticking around too long because it was invisible and doing nothing but taking up memory, but wanted to give the shrink tail function time to run
-        Destroy(transform.gameObject, 1f);
+        DestroyBulletServerRpc();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    void DestroyBulletServerRpc()
+    {
+        if (!IsOwner)
+        {
+            return;
+        }
+        GetComponent<NetworkObject>().Despawn(true);
+        
+        NetworkObject.Destroy(transform, 1f);
+        //Destroy(transform.gameObject, 1f);
+        
+    }
 
     //the tail size is normally constant during its lifetime
     //this slowly changes the gradients for transparency so end of the tail starts becoming more transparent until the whole tail is transparent

@@ -185,6 +185,7 @@ public class PlayerIdleState : PlayerBaseState
         {
             ctx._equipmentAmount -= 1;
             GameObject temp = GameObject.Instantiate(ctx._currentEquipment, ctx.transform.TransformPoint(Vector3.up), Quaternion.identity);
+
             Physics.IgnoreCollision(ctx._capsuleCollider, temp.GetComponent<Collider>());
 
             temp.GetComponent<IEquipment>().Gravity(ctx._gravityForce, ctx._up);
