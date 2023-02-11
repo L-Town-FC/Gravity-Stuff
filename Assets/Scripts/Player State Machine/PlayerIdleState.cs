@@ -82,10 +82,6 @@ public class PlayerIdleState : PlayerBaseState
 
     void ChangeGravityCheck(Vector3 obj)
     {
-        if (!ctx.IsOwner)
-        {
-            return;
-        }
         //Vector3 newGravity = new Vector3(obj.x, 0f, obj.z); //grabbing inputs
         Vector3 newGravity = _newGravity;
 
@@ -160,10 +156,6 @@ public class PlayerIdleState : PlayerBaseState
 
     private void Jump(InputAction.CallbackContext obj)
     {
-        if (!ctx.IsOwner)
-        {
-            return;
-        }
         if (ctx._isGrounded)
         {
             ctx._rb.AddForce(ctx._jumpForce * ctx._up, ForceMode.Impulse);
@@ -172,11 +164,6 @@ public class PlayerIdleState : PlayerBaseState
 
     private void Dash(InputAction.CallbackContext obj)
     {
-        if (!ctx.IsOwner)
-        {
-            return;
-        }
-
         if (obj.performed)
         {
             DashCheck();
@@ -185,10 +172,6 @@ public class PlayerIdleState : PlayerBaseState
 
     private void ChangeGravity(InputAction.CallbackContext obj)
     {
-        if (!ctx.IsOwner)
-        {
-            return;
-        }
         if (obj.performed)
         {
             _newGravity = new Vector3(obj.ReadValue<Vector2>().x, 0f, obj.ReadValue<Vector2>().y);
@@ -198,10 +181,6 @@ public class PlayerIdleState : PlayerBaseState
 
     void UseEquipment(InputAction.CallbackContext obj)
     {
-        if (!ctx.IsOwner)
-        {
-            return;
-        }
         if (obj.performed && ctx._equipmentAmount > 0)
         {
             ctx._equipmentAmount -= 1;

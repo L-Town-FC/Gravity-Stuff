@@ -124,13 +124,18 @@ public class PlayerStateMachine : NetworkBehaviour
         //enabling the different player controls
         SettingPlayerControls();
     }
-    //grab inputs in update
-    private void Update()
+
+    private void Start()
     {
         if (!IsOwner)
         {
-            return;
+            this.enabled = false;
         }
+
+    }
+    //grab inputs in update
+    private void Update()
+    {
         GettingPlayerInputs();
         currentState.UpdateState();
 
@@ -152,11 +157,6 @@ public class PlayerStateMachine : NetworkBehaviour
     //apply inputs to components in fixed update
     private void FixedUpdate()
     {
-        if (!IsOwner)
-        {
-            return;
-        }
-
         currentState.FixedUpdateState();
 
         if (_isGrounded)

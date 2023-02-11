@@ -58,10 +58,6 @@ public class playerCamera : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsOwner)
-        {
-            return;
-        }
         rb.angularVelocity = Vector3.zero;
         cameraInput = new Vector2(cameraMovement.ReadValue<Vector2>().x, cameraMovement.ReadValue<Vector2>().y);
         //Very janky deadzone. will need to fix
@@ -78,10 +74,6 @@ public class playerCamera : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        if (!IsOwner)
-        {
-            return;
-        }
         //used to turn player. player is turned instead of camera so player and camera dont go out of synce
         rb.MoveRotation(Quaternion.Slerp(rb.rotation, rb.rotation * Quaternion.Euler(new Vector3(0f, cameraInput.x, 0f) * cameraSensitivity.x * Time.fixedDeltaTime), 0.5f));
 
