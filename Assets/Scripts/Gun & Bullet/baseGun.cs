@@ -150,7 +150,7 @@ public class baseGun : NetworkBehaviour
     {
         timeOfLastShot = Time.time;
         GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
-        temp.GetComponent<Rigidbody>().isKinematic = false;
+        //temp.GetComponent<Rigidbody>().isKinematic = false;
         Physics.IgnoreCollision(temp.GetComponent<Collider>(), playerCollider); //makes sure player cant shoot self if looking straight down
         temp.GetComponent<NetworkObject>().Spawn();
 

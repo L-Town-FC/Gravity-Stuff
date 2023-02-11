@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 using Unity.Netcode;
+
 public class baseBullet : NetworkBehaviour
 {
     Rigidbody rb;
@@ -34,16 +35,16 @@ public class baseBullet : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody>();
         collidersAtSpawn = Physics.OverlapSphere(transform.position, 0.01f);
-        IgnoreCollision();
-
-        
+        IgnoreCollision();        
     }
 
     // Start is called before the first frame update
     void Start()
     {
         //spawnTime = Time.time;
-        rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
+
+        InitialForceServerRpc();
+        //rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
 
         bulletCollider = GetComponent<Collider>();
         bulletRenderer = GetComponent<Renderer>();
@@ -58,7 +59,6 @@ public class baseBullet : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
         //Debug.DrawRay(transform.position, transform.forward * 0.1f, Color.red);
         RaycastHit hit;
         Physics.Raycast(transform.position, transform.forward, out hit);
@@ -79,12 +79,21 @@ public class baseBullet : NetworkBehaviour
         }
     }
 
+    [ServerRpc]
+    void InitialForceServerRpc()
+    {
+        rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
+        
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.transform.tag == "bubble shield") //lets bullets bounce off bubble shield. it looks cool so im keeping it
         {
             return;
         }
+
+        StartCoroutine("StartDestroy");
 
         rb.position = collisionPoint; //sets the object to the point of collision because it would normally bounce off the object and change position in the time this is called
         rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ; //ensures that once its in the right position, it no longer moves
@@ -99,8 +108,13 @@ public class baseBullet : NetworkBehaviour
 
         //starts the trail shrinking funciton
         shrinkTrail = true;
+    }
 
-        //1 second was chosen arbitrarily. I didnt want the object sticking around too long because it was invisible and doing nothing but taking up memory, but wanted to give the shrink tail function time to run
+    //Need to use a coroutine in order to wait 1 sec after collison because network despawn doesnt have a built in wait function
+    //1 sec was chosen arbitrarily in order to give visual effect time to occur
+    IEnumerator StartDestroy()
+    {
+        yield return new WaitForSeconds(1f);
         DestroyBulletServerRpc();
     }
 
@@ -113,7 +127,7 @@ public class baseBullet : NetworkBehaviour
         }
         GetComponent<NetworkObject>().Despawn(true);
         
-        NetworkObject.Destroy(transform, 1f);
+        //NetworkObject.Destroy(transform, 1f);
         //Destroy(transform.gameObject, 1f);
         
     }
