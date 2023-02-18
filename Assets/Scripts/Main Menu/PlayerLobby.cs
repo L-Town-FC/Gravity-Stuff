@@ -5,6 +5,8 @@ using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class PlayerLobby : MonoBehaviour
 {
@@ -16,9 +18,17 @@ public class PlayerLobby : MonoBehaviour
     private float heartbeatTimer;
     private float lobbyUpdateTimer;
     private string playerName;
+
+    [SerializeField]
+    GameObject _text;
+    TMP_Text text;
+
     // Start is called before the first frame update
     private async void Start()
     {
+        text = _text.GetComponent<TMP_Text>();
+        text.text = "Not in Lobby";
+
         await UnityServices.InitializeAsync();
 
         AuthenticationService.Instance.SignedIn += () =>
@@ -60,7 +70,7 @@ public class PlayerLobby : MonoBehaviour
             lobbyUpdateTimer -= Time.deltaTime;
             if (lobbyUpdateTimer <= 0f)
             {
-                float lobbyUpdateTimerMax = 1.1f;
+                float lobbyUpdateTimerMax = 10f;
                 heartbeatTimer = lobbyUpdateTimerMax;
 
                 Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
@@ -90,6 +100,8 @@ public class PlayerLobby : MonoBehaviour
 
             hostLobby = lobby;
             joinedLobby = hostLobby;
+
+            text.text = "Host";
 
             Debug.Log("Created Lobby! " + lobby.Name + " " + lobby.MaxPlayers + " " + lobby.Id + " " + lobby.LobbyCode);
 
@@ -175,6 +187,8 @@ public class PlayerLobby : MonoBehaviour
             Lobby quickJoinedLobby = await Lobbies.Instance.QuickJoinLobbyAsync(quickJoinLobbyOptions);
             Debug.Log("Joined Lobby Quickly");
             PrintPlayers(quickJoinedLobby);
+
+            text.text = "Joined";
 
         }
         catch (LobbyServiceException e)
@@ -308,6 +322,14 @@ public class PlayerLobby : MonoBehaviour
         catch (LobbyServiceException e)
         {
             Debug.Log(e);
+        }
+    }
+
+    public void StartGame()
+    {
+        if(joinedLobby.Players.Count > 0)
+        {
+            SceneManager.LoadScene("First Map");
         }
     }
 }

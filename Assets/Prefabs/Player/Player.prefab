@@ -213,7 +213,7 @@ MonoBehaviour:
   maxVerticalVelocity: 18
   equipmentAmount: 100
   teamNumber: 0
-  currentEquipment: {fileID: 5250512725779278815, guid: 3172738750dd7c24ca8bf5e58ddce65d,
+  currentEquipment: {fileID: 1036147601632442245, guid: 236d4d6e56b1c8649bef0f129965c72e,
     type: 3}
 --- !u!114 &2084556584
 MonoBehaviour:

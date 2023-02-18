@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
-public class NetworkManagerUI : MonoBehaviour
+public class NetworkManagerUI : NetworkBehaviour
 {
     [SerializeField]
     Button serverButton;
@@ -28,6 +29,14 @@ public class NetworkManagerUI : MonoBehaviour
             NetworkManager.Singleton.StartClient();
             
         });
+
+        if (IsHost)
+        {
+            print("Host");
+            NetworkManager.Singleton.StartHost();
+        }
     }
+
+    
 
 }
