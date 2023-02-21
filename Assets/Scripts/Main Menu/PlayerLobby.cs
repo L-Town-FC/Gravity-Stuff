@@ -13,6 +13,19 @@ public class PlayerLobby : MonoBehaviour
     //video where I copied everything from
     //https://www.youtube.com/watch?v=-KDlEBfCBiU&list=PLq00P7T1AsJ8jeM7A3bHWuR1dC0FZNM88&index=9&t=1019s
 
+    //POSSIBLE WAY TO GET ALL CLIENTS TO START GAME
+    //Have a field in the lobby called isGameStarted
+    //When the host starts the game this gets updated to true
+    //Host instantly loads into game
+    //Non-hosts will see update through lobby polling and check this field
+    //when the see the updated field, then they will also load into game
+    //really janky way of doing it and im not sure if multiple lobbies can be supported but whatever
+
+
+    //alternate method that is probably how you are supposed to do it
+    //create host on when lobby is created and client when player joins
+    //these will be empty game objects
+    //have network handler handle loading next scene
     private Lobby hostLobby;
     private Lobby joinedLobby;
     private float heartbeatTimer;
@@ -22,6 +35,10 @@ public class PlayerLobby : MonoBehaviour
     [SerializeField]
     GameObject _text;
     TMP_Text text;
+
+    private void Awake()
+    {
+    }
 
     // Start is called before the first frame update
     private async void Start()
@@ -70,11 +87,18 @@ public class PlayerLobby : MonoBehaviour
             lobbyUpdateTimer -= Time.deltaTime;
             if (lobbyUpdateTimer <= 0f)
             {
-                float lobbyUpdateTimerMax = 10f;
-                heartbeatTimer = lobbyUpdateTimerMax;
+                float lobbyUpdateTimerMax = 5f;
+                lobbyUpdateTimer = lobbyUpdateTimerMax;
 
                 Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
                 joinedLobby = lobby;
+
+                Debug.Log(lobby.Data);
+
+                if (lobby.Data["isStarted"].Value == "true")
+                {
+                    SceneManager.LoadScene("First Map Attempt");
+                }
             }
         }
     }
@@ -92,7 +116,8 @@ public class PlayerLobby : MonoBehaviour
                 Player = GetPlayer(),
                 Data = new Dictionary<string, DataObject>
                 {
-                    {"GameMode", new DataObject(DataObject.VisibilityOptions.Public, "DeathMatch") }
+                    {"GameMode", new DataObject(DataObject.VisibilityOptions.Public, "DeathMatch") },
+                    {"isStarted", new DataObject(DataObject.VisibilityOptions.Member, "false")}
                 }
             };
 
@@ -189,7 +214,7 @@ public class PlayerLobby : MonoBehaviour
             PrintPlayers(quickJoinedLobby);
 
             text.text = "Joined";
-
+            joinedLobby = quickJoinedLobby;
         }
         catch (LobbyServiceException e)
         {
@@ -325,11 +350,21 @@ public class PlayerLobby : MonoBehaviour
         }
     }
 
-    public void StartGame()
+    public async void StartGame()
     {
-        if(joinedLobby.Players.Count > 0)
+        if (joinedLobby.Players.Count > 0 && SceneManager.GetActiveScene().name == "Menu")
         {
-            SceneManager.LoadScene("First Map");
+            hostLobby = await Lobbies.Instance.UpdateLobbyAsync(hostLobby.Id, new UpdateLobbyOptions
+            {
+                Data = new Dictionary<string, DataObject>
+                {
+                    {"isStarted", new DataObject(DataObject.VisibilityOptions.Member, "true")}
+                }
+            });
+
+            joinedLobby = hostLobby;
         }
     }
+
+
 }

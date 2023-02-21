@@ -2918,6 +2918,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 293cc9b01d670eb499df099aa0d9a716, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lobbyPoll: 1
   _text: {fileID: 2119815469}
 --- !u!4 &1949104771
 Transform:

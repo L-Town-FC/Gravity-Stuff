@@ -20,8 +20,8 @@ GameObject:
   - component: {fileID: 8422970536481788420}
   - component: {fileID: 7106749074202942217}
   - component: {fileID: -8749102474495829125}
-  - component: {fileID: -2821656947744222147}
-  - component: {fileID: -933360870670172346}
+  - component: {fileID: 12357737073153650}
+  - component: {fileID: -7436958588035225304}
   m_Layer: 0
   m_Name: bullet
   m_TagString: Untagged
@@ -121,8 +121,8 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 3
+  m_Constraints: 112
+  m_CollisionDetection: 1
 --- !u!114 &-202313005067155633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,7 +411,7 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &-2821656947744222147
+--- !u!114 &12357737073153650
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -420,15 +420,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 9158197951878752988}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: df2868252ab5c4d1da357e8f11f1b524, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
+  SyncRotAngleX: 0
+  SyncRotAngleY: 0
+  SyncRotAngleZ: 0
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
@@ -437,7 +437,7 @@ MonoBehaviour:
   ScaleThreshold: 0.01
   InLocalSpace: 0
   Interpolate: 1
---- !u!114 &-933360870670172346
+--- !u!114 &-7436958588035225304
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

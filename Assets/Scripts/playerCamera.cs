@@ -17,7 +17,7 @@ public class playerCamera : NetworkBehaviour
                                         //camera variables
     [SerializeField]
     Vector2 cameraSensitivity = new Vector2(0.5f, 0.3f);
-    public static Vector2 minAndMaxCameraAngle = new Vector2(-75f, 75f);
+    public static Vector2 minAndMaxCameraAngle = new Vector2(-60f, 75f);
 
     private void Awake()
     {

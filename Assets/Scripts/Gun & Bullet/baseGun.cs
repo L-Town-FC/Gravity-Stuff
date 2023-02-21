@@ -79,6 +79,8 @@ public class baseGun : NetworkBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
+        Debug.DrawRay(endOfBarrel.position, transform.forward * 2f);
+
         //simplest way i could think of stopping shooting while flipping gravity. will probably need to be changed later
         //the player can only shoot in the idle state right now. Design choice to make it so there isn't too much going on at once
         if(playerStateMachine._currentState.ToString() != playerStateMachine._states.Idle().ToString())
@@ -150,10 +152,8 @@ public class baseGun : NetworkBehaviour
     {
         timeOfLastShot = Time.time;
         GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
-        //temp.GetComponent<Rigidbody>().isKinematic = false;
         Physics.IgnoreCollision(temp.GetComponent<Collider>(), playerCollider); //makes sure player cant shoot self if looking straight down
         temp.GetComponent<NetworkObject>().Spawn();
-
         //adjusts the bullets trajectory so it always hits what the crosshair is looking at. This needs to be done because the player forward isnt aligned with the guns forward
         Vector3 newForward;
         RaycastHit hit;

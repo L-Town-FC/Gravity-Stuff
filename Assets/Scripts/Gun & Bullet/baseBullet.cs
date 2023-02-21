@@ -6,6 +6,16 @@ using Unity.Netcode;
 
 public class baseBullet : NetworkBehaviour
 {
+    //POOLED DYNAMIC SPAWNING
+    //predictive spawning isnt currently in unity netcode. Need to look into object pooling instead
+    //my current idea which probably makes no sense
+    //spawn 100 bullets far away with everything disabled in a box.
+    //have the box constantly check if there are 100 bullets in it, if not, spawn more inside it
+    //when a player shoots move a bullet to his gun, enable it, and add a force
+
+    //https://docs.unity3d.com/Packages/com.unity.netcode@1.0/manual/prediction.html
+    //https://docs-multiplayer.unity3d.com/netcode/current/basics/object-spawning
+
     Rigidbody rb;
     Collider bulletCollider;
     Renderer bulletRenderer;
@@ -28,7 +38,7 @@ public class baseBullet : NetworkBehaviour
     Vector3 collisionPoint;
 
     VisualEffect shrapnelEffect;
-
+    
     Collider[] collidersAtSpawn;
 
     private void Awake()
@@ -43,8 +53,8 @@ public class baseBullet : NetworkBehaviour
     {
         //spawnTime = Time.time;
 
-        InitialForceServerRpc();
-        //rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
+        //InitialForceServerRpc();
+        rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
 
         bulletCollider = GetComponent<Collider>();
         bulletRenderer = GetComponent<Renderer>();
@@ -59,6 +69,8 @@ public class baseBullet : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+
+
         //Debug.DrawRay(transform.position, transform.forward * 0.1f, Color.red);
         RaycastHit hit;
         Physics.Raycast(transform.position, transform.forward, out hit);
@@ -79,7 +91,7 @@ public class baseBullet : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     void InitialForceServerRpc()
     {
         rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
@@ -88,6 +100,7 @@ public class baseBullet : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+
         if (collision.transform.tag == "bubble shield") //lets bullets bounce off bubble shield. it looks cool so im keeping it
         {
             return;
