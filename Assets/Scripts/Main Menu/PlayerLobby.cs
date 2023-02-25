@@ -7,8 +7,9 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Unity.Netcode;
 
-public class PlayerLobby : MonoBehaviour
+public class PlayerLobby : NetworkBehaviour
 {
     //video where I copied everything from
     //https://www.youtube.com/watch?v=-KDlEBfCBiU&list=PLq00P7T1AsJ8jeM7A3bHWuR1dC0FZNM88&index=9&t=1019s
@@ -63,6 +64,12 @@ public class PlayerLobby : MonoBehaviour
     {
         HandleLobbyHeartbeat();
         HandleLobbyPollForUpdate();
+        if (IsHost)
+        {
+
+        print(NetworkManager.ConnectedClientsIds.Count);
+        }
+        
     }
 
     private async void HandleLobbyHeartbeat()
@@ -87,18 +94,13 @@ public class PlayerLobby : MonoBehaviour
             lobbyUpdateTimer -= Time.deltaTime;
             if (lobbyUpdateTimer <= 0f)
             {
-                float lobbyUpdateTimerMax = 5f;
+                float lobbyUpdateTimerMax = 2f;
                 lobbyUpdateTimer = lobbyUpdateTimerMax;
 
                 Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
                 joinedLobby = lobby;
 
                 Debug.Log(lobby.Data);
-
-                if (lobby.Data["isStarted"].Value == "true")
-                {
-                    SceneManager.LoadScene("First Map Attempt");
-                }
             }
         }
     }
@@ -116,8 +118,7 @@ public class PlayerLobby : MonoBehaviour
                 Player = GetPlayer(),
                 Data = new Dictionary<string, DataObject>
                 {
-                    {"GameMode", new DataObject(DataObject.VisibilityOptions.Public, "DeathMatch") },
-                    {"isStarted", new DataObject(DataObject.VisibilityOptions.Member, "false")}
+                    {"GameMode", new DataObject(DataObject.VisibilityOptions.Public, "DeathMatch") }
                 }
             };
 
@@ -129,6 +130,8 @@ public class PlayerLobby : MonoBehaviour
             text.text = "Host";
 
             Debug.Log("Created Lobby! " + lobby.Name + " " + lobby.MaxPlayers + " " + lobby.Id + " " + lobby.LobbyCode);
+
+            NetworkManager.StartHost();
 
             PrintPlayers(hostLobby);
         }
@@ -214,6 +217,7 @@ public class PlayerLobby : MonoBehaviour
             PrintPlayers(quickJoinedLobby);
 
             text.text = "Joined";
+            NetworkManager.StartClient();
             joinedLobby = quickJoinedLobby;
         }
         catch (LobbyServiceException e)
@@ -350,21 +354,19 @@ public class PlayerLobby : MonoBehaviour
         }
     }
 
-    public async void StartGame()
+    public void StartGame()
     {
-        if (joinedLobby.Players.Count > 0 && SceneManager.GetActiveScene().name == "Menu")
+        if (joinedLobby.Players.Count  < 1)
         {
-            hostLobby = await Lobbies.Instance.UpdateLobbyAsync(hostLobby.Id, new UpdateLobbyOptions
-            {
-                Data = new Dictionary<string, DataObject>
-                {
-                    {"isStarted", new DataObject(DataObject.VisibilityOptions.Member, "true")}
-                }
-            });
-
-            joinedLobby = hostLobby;
+            return;
         }
-    }
 
+        if (IsHost)
+        {
+            joinedLobby = hostLobby;
+            NetworkManager.SceneManager.LoadScene("First Map Attempt", LoadSceneMode.Single);
+        }
+        
+    }
 
 }

@@ -37,6 +37,9 @@ public class NetworkManagerUI : NetworkBehaviour
         }
     }
 
-    
+    private void OnConnectedToServer()
+    {
+        print(NetworkManager.ConnectedClients.Count);
+    }
 
 }
