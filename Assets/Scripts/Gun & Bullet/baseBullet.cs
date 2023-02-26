@@ -16,6 +16,8 @@ public class baseBullet : NetworkBehaviour
     //https://docs.unity3d.com/Packages/com.unity.netcode@1.0/manual/prediction.html
     //https://docs-multiplayer.unity3d.com/netcode/current/basics/object-spawning
 
+    bool initialized;
+
     Rigidbody rb;
     Collider bulletCollider;
     Renderer bulletRenderer;
@@ -31,7 +33,7 @@ public class baseBullet : NetworkBehaviour
     float startTime;
     bool shrinkTrail = false;
     GradientColorKey[] gradientColorKeys;
-
+    GradientColorKey[] initialColorKeys;
     float alpha1 = 1f;
     float alpha2 = 0.89f;
 
@@ -43,33 +45,51 @@ public class baseBullet : NetworkBehaviour
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        if (!initialized)
+        {
+            rb = GetComponent<Rigidbody>();
+            bulletCollider = GetComponent<Collider>();
+            bulletRenderer = GetComponent<Renderer>();
+            bulletLight = GetComponent<Light>();
+            trail = GetComponent<TrailRenderer>();
+            shrapnelEffect = GetComponent<VisualEffect>();
+            transform.localScale *= bulletSize;
+            startTime = Time.time;
+            initialColorKeys = gradientColorKeys = trail.colorGradient.colorKeys;
+            startTime = Time.time;
+            bulletLight.enabled = true;
+            bulletCollider.enabled = true;
+            bulletRenderer.enabled = true;
+            trail.emitting = true;
+            shrinkTrail = false;
+
+
+        }
         collidersAtSpawn = Physics.OverlapSphere(transform.position, 0.01f);
-        IgnoreCollision();        
+        IgnoreCollision();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        //spawnTime = Time.time;
-
-        //InitialForceServerRpc();
-        rb.AddForce(transform.forward * bulletSpeed, ForceMode.VelocityChange);
-
-        bulletCollider = GetComponent<Collider>();
-        bulletRenderer = GetComponent<Renderer>();
-        bulletLight = GetComponent<Light>();
-        trail = GetComponent<TrailRenderer>();
-        shrapnelEffect = GetComponent<VisualEffect>();
-        transform.localScale *= bulletSize;
-        startTime = Time.time;
-        gradientColorKeys = trail.colorGradient.colorKeys;
     }
 
+    private void OnEnable()
+    {
+        startTime = Time.time;
+        bulletLight.enabled = true;
+        bulletCollider.enabled = true;
+        bulletRenderer.enabled = true;
+        trail.emitting = true;
+        shrinkTrail = false;
+        bulletCollider.enabled = true;
+        bulletRenderer.enabled = true;
+
+    }
+    
     // Update is called once per frame
     void Update()
     {
-
 
         //Debug.DrawRay(transform.position, transform.forward * 0.1f, Color.red);
         RaycastHit hit;
@@ -77,7 +97,7 @@ public class baseBullet : NetworkBehaviour
         collisionPoint = hit.point;
         if(Time.time - startTime > bulletLife)
         {
-            DestroyBulletServerRpc();
+            DestroyBulletServer();
         }
 
         if(Time.time - startTime > bulletShrinkTime)
@@ -109,7 +129,7 @@ public class baseBullet : NetworkBehaviour
         StartCoroutine("StartDestroy");
 
         rb.position = collisionPoint; //sets the object to the point of collision because it would normally bounce off the object and change position in the time this is called
-        rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ; //ensures that once its in the right position, it no longer moves
+        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; //ensures that once its in the right position, it no longer moves
         rb.velocity = Vector3.zero; //another check to make sure the bullet isnt moving
         shrapnelEffect.Play(); //plays the visual effect for shrapnel
 
@@ -128,21 +148,13 @@ public class baseBullet : NetworkBehaviour
     IEnumerator StartDestroy()
     {
         yield return new WaitForSeconds(1f);
-        DestroyBulletServerRpc();
+        DestroyBulletServer();
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    void DestroyBulletServerRpc()
+    void DestroyBulletServer()
     {
-        if (!IsOwner)
-        {
-            return;
-        }
-        GetComponent<NetworkObject>().Despawn(true);
-        
-        //NetworkObject.Destroy(transform, 1f);
-        //Destroy(transform.gameObject, 1f);
-        
+        transform.GetComponent<NetworkObject>().Despawn();
+        //NetworkObjectPool.Singleton.ReturnNetworkObject(transform.GetComponent<NetworkObject>(), )
     }
 
     //the tail size is normally constant during its lifetime
@@ -162,6 +174,31 @@ public class baseBullet : NetworkBehaviour
         trail.colorGradient = gradient;
     }
 
+    private void OnDisable()
+    {
+        startTime = Mathf.Infinity;
+        rb.constraints = RigidbodyConstraints.None;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        trail.Clear();
+        alpha1 = 1f;
+        alpha2 = 0.89f;
+        gradientColorKeys = initialColorKeys;
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[] { gradientColorKeys[0], gradientColorKeys[1] },
+            new GradientAlphaKey[] { new GradientAlphaKey(alpha1, 0f), new GradientAlphaKey(alpha2, 0.75f), new GradientAlphaKey(0f, 0.9f) }
+        );
+
+        trail.colorGradient = gradient;
+        shrinkTrail = false;
+    }
+
+    //sets the color gradient for the bullets trail
+    void SetGradient()
+    {
+
+    }
+
     //checks if the bullet spawns inside a bubble shield, i.e. the player is inside the bubble shield
     //Before this, unity physics would take over and launch the bullet out of the collider in a random direction. by ignoring the collider, the player can should out of the bubble shield just fine
     void IgnoreCollision()
@@ -174,5 +211,7 @@ public class baseBullet : NetworkBehaviour
             }
         }
     }
+
+
 
 }

@@ -26,6 +26,7 @@ public class playerCamera : NetworkBehaviour
         rb = GetComponent<Rigidbody>();
         playerCam = transform.GetChild(0);
         Cursor.lockState = CursorLockMode.Locked;
+        transform.position = Vector3.zero;
     }
 
     private void OnEnable()

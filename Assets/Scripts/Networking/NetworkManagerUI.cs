@@ -13,6 +13,8 @@ public class NetworkManagerUI : NetworkBehaviour
     Button hostButton;
     [SerializeField]
     Button clientButton;
+    [SerializeField]
+    GameObject player;
 
     private void Awake()
     {
@@ -23,23 +25,15 @@ public class NetworkManagerUI : NetworkBehaviour
         hostButton.onClick.AddListener(() =>
         {
             NetworkManager.Singleton.StartHost();
+            
         });
         clientButton.onClick.AddListener(() =>
         {
-            NetworkManager.Singleton.StartClient();
-            
+            //NetworkManager.Singleton.StartClient();
+            GameObject temp = Instantiate(player);
+            temp.GetComponent<NetworkObject>().SpawnAsPlayerObject(OwnerClientId);
         });
-
-        if (IsHost)
-        {
-            print("Host");
-            NetworkManager.Singleton.StartHost();
-        }
     }
 
-    private void OnConnectedToServer()
-    {
-        print(NetworkManager.ConnectedClients.Count);
-    }
 
 }

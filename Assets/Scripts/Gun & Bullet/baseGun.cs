@@ -151,9 +151,14 @@ public class baseGun : NetworkBehaviour
     void SpawnBulletServerRpc()
     {
         timeOfLastShot = Time.time;
-        GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
-        Physics.IgnoreCollision(temp.GetComponent<Collider>(), playerCollider); //makes sure player cant shoot self if looking straight down
-        temp.GetComponent<NetworkObject>().Spawn();
+        //GameObject temp = Instantiate(bullet, endOfBarrel.position, Quaternion.identity);
+        //Physics.IgnoreCollision(temp.GetComponent<Collider>(), playerCollider); //makes sure player cant shoot self if looking straight down
+        //temp.GetComponent<NetworkObject>().Spawn();
+
+        var temp = NetworkObjectPool.Singleton.GetNetworkObject(bullet, endOfBarrel.position, Quaternion.identity);
+        temp.Spawn();
+
+
         //adjusts the bullets trajectory so it always hits what the crosshair is looking at. This needs to be done because the player forward isnt aligned with the guns forward
         Vector3 newForward;
         RaycastHit hit;
@@ -170,6 +175,8 @@ public class baseGun : NetworkBehaviour
         Debug.DrawRay(transform.position, newForward * 5f);
 
         temp.transform.forward = newForward;
+        temp.transform.GetComponent<Rigidbody>().AddForce(transform.forward * 40f, ForceMode.VelocityChange); //applying force to bullet. Probably need to change this at some point
+
         bulletsRemaining -= 1;
         if(ammoUpdate != null)
         {

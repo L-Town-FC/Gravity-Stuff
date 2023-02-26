@@ -21,7 +21,6 @@ GameObject:
   - component: {fileID: 7106749074202942217}
   - component: {fileID: -8749102474495829125}
   - component: {fileID: 12357737073153650}
-  - component: {fileID: -7436958588035225304}
   m_Layer: 0
   m_Name: bullet
   m_TagString: Untagged
@@ -119,7 +118,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 1
@@ -135,6 +134,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52850f8bf77a8f64ca2a78fa3c5fec3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  applyforce: 0
+  prefab: {fileID: 9158197951878752988}
   bulletSpeed: 40
   bulletSize: 1
 --- !u!108 &7022217485134803640
@@ -437,15 +438,3 @@ MonoBehaviour:
   ScaleThreshold: 0.01
   InLocalSpace: 0
   Interpolate: 1
---- !u!114 &-7436958588035225304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9158197951878752988}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
